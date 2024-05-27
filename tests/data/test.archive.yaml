@@ -1,3 +1,14 @@
 data:
-  m_def: nomad_ikz_fz.schema_packages.mypackage.MySchema
-  name: Markus
+  m_def: nomad_ikz_fz.schema_packages.mypackage.Feed_rod
+  #name: Markus
+  sharpened: true
+  etched: false
+  storage_location: Keller
+  material_type: Wacker
+  diameter: 50
+  length: 200
+  rod_surface: raw
+  rod_pretreatment: etched
+  rod_angle: 2
+  chemical_formula: Si
+  description: 'This is a rod'
