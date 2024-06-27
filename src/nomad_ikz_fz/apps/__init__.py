@@ -9,28 +9,32 @@ from nomad.config.models.ui import (
 )
 
 myapp = AppEntryPoint(
-    name='FzApp',
+    name='FzFeedRodApp',
     description='Explore Fz data.',
     app=App(
-        label='FzApp',
+        label='FzFeedRodApp',
         path='fzapp',
-        category='experiment',
+        category='Fz Crystal Growth',
         columns=Columns(
             selected=[
-                'entry_id',
+                #'entry_id',
                 'data.name#nomad_ikz_fz.schema_packages.mypackage.Feed_rod',
                 'data.length#nomad_ikz_fz.schema_packages.mypackage.Feed_rod',
                 'data.diameter#nomad_ikz_fz.schema_packages.mypackage.Feed_rod',
                 'data.status#nomad_ikz_fz.schema_packages.mypackage.Feed_rod',
                 'data.storage_location#nomad_ikz_fz.schema_packages.mypackage.Feed_rod',
+                'data.resistivity#nomad_ikz_fz.schema_packages.mypackage.Feed_rod',
+                'data.description#nomad_ikz_fz.schema_packages.mypackage.Feed_rod',
             ],
             options={
-                'entry_id': Column(),
+                #'entry_id': Column(),
                 'data.name#nomad_ikz_fz.schema_packages.mypackage.Feed_rod': Column(),
                 'data.length#nomad_ikz_fz.schema_packages.mypackage.Feed_rod': Column(),
                 'data.diameter#nomad_ikz_fz.schema_packages.mypackage.Feed_rod': Column(),
                 'data.status#nomad_ikz_fz.schema_packages.mypackage.Feed_rod': Column(),
                 'data.storage_location#nomad_ikz_fz.schema_packages.mypackage.Feed_rod': Column(),
+                'data.feed_rod_resistivity#nomad_ikz_fz.schema_packages.mypackage.Feed_rod': Column(),
+                'data.description#nomad_ikz_fz.schema_packages.mypackage.Feed_rod': Column(),
             },
         ),
         filter_menus=FilterMenus(
@@ -45,6 +49,11 @@ myapp = AppEntryPoint(
         filters=Filters(
             include=['*#nomad_ikz_fz.schema_packages.mypackage.Feed_rod'],
         ),
+        filters_locked={
+            'section_defs.definition_qualified_name': [
+                'nomad_ikz_fz.schema_packages.mypackage.Feed_rod'
+            ],
+        },
         dashboard={
             'widgets': [
                 {
@@ -212,6 +221,64 @@ myapp = AppEntryPoint(
                     },
                 },
             ]
+        },
+    ),
+)
+
+
+fzcrysapp = AppEntryPoint(
+    name='FzCrystalApp',
+    description='Explore Fz crystals.',
+    app=App(
+        label='FzCrystalApp',
+        path='fzcrysapp',
+        category='Fz Crystal Growth',
+        columns=Columns(
+            selected=[
+                #'entry_id',
+                'data.name#nomad_ikz_fz.schema_packages.mypackage.FzCrystal',
+                'data.length#nomad_ikz_fz.schema_packages.mypackage.FzCrystal',
+                'data.diameter#nomad_ikz_fz.schema_packages.mypackage.FzCrystal',
+                'data.status#nomad_ikz_fz.schema_packages.mypackage.FzCrystal',
+                'data.location#nomad_ikz_fz.schema_packages.mypackage.FzCrystal',
+                'data.resistivity#nomad_ikz_fz.schema_packages.mypackage.FzCrystal',
+                'data.description#nomad_ikz_fz.schema_packages.mypackage.FzCrystal',
+                'data.datetime#nomad_ikz_fz.schema_packages.mypackage.FzCrystal',
+                'fz_furnace#nomad_ikz_fz.schema_packages.mypackage.FzCrystal',
+                'data.orientation#nomad_ikz_fz.schema_packages.mypackage.FzCrystal',
+                'doping_type#nomad_ikz_fz.schema_packages.mypackage.FzCrystal',
+            ],
+            options={
+                #'entry_id': Column(),
+                'data.name#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(),
+                'data.length#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(),
+                'data.diameter#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(),
+                'data.status#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(),
+                'data.location#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(),
+                'data.resistivity#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(),
+                'data.description#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(),
+                'data.datetime#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(),
+                'fz_furnace#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(),
+                'data.orientation#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(),
+                'doping_type#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(),
+            },
+        ),
+        filter_menus=FilterMenus(
+            options={
+                'material': FilterMenu(label='Material'),
+                'eln': FilterMenu(label='Electronic Lab Notebook'),
+                'custom_quantities': FilterMenu(label='User Defined Quantities'),
+                'author': FilterMenu(label='Author / Origin / Dataset'),
+                'metadata': FilterMenu(label='Visibility / IDs / Schema'),
+            }
+        ),
+        filters=Filters(
+            include=['*#nomad_ikz_fz.schema_packages.mypackage.FzCrystal'],
+        ),
+        filters_locked={
+            'section_defs.definition_qualified_name': [
+                'nomad_ikz_fz.schema_packages.mypackage.FzCrystal'
+            ],
         },
     ),
 )

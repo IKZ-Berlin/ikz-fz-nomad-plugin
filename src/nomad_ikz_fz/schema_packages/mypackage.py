@@ -105,18 +105,22 @@ class Feed_rod(CompositeSystem, FzMaterial, EntryData, ArchiveSection):  # FzMat
                     'name',
                     'lab_id',
                     'datetime',
-                    'material_type',
+                    'supplier',
+                    'furnace_type_compatibility',
+                    'feed_rod_resistivity',
                     'diameter',
                     'length',
                     'weight',
                     'rod_surface',
                     'rod_pretreatment',
                     'rod_angle',
-                    'chemical_formula',
+                    # 'chemical_formula', not needed or default value = Si
                     'storage_location',
                     'sharpened',
                     'etched',
-                    'etch_date' 'status',
+                    'etching_location',
+                    'etch_date',
+                    'status',
                     'description',
                 ],
             ),
@@ -124,7 +128,7 @@ class Feed_rod(CompositeSystem, FzMaterial, EntryData, ArchiveSection):  # FzMat
         ),
     )
 
-    material_type = Quantity(
+    supplier = Quantity(
         type=MEnum(['Wacker', 'ASIMI', 'REC', 'other']),
         description='feed rod material options',
         a_eln={'component': 'EnumEditQuantity'},
@@ -152,11 +156,11 @@ class Feed_rod(CompositeSystem, FzMaterial, EntryData, ArchiveSection):  # FzMat
         description='rod surface condition',
         a_eln={'component': 'EnumEditQuantity'},
     )
-    rod_pretreatment = Quantity(
-        type=MEnum(['etched', 'raw', 'US cleaned']),
-        description='rod pretreatment',
-        a_eln={'component': 'EnumEditQuantity'},
-    )
+    # rod_pretreatment = Quantity(
+    #     type=MEnum(['etched', 'raw', 'US cleaned']),
+    #     description='rod pretreatment',
+    #     a_eln={'component': 'EnumEditQuantity'},
+    # )
     rod_angle = Quantity(
         type=np.float64,
         description='angle of feed rod',
@@ -173,20 +177,22 @@ class Feed_rod(CompositeSystem, FzMaterial, EntryData, ArchiveSection):  # FzMat
             [
                 'needs to be etched',
                 'ready to use',
-                'send to etching',
+                'sent to etching',
                 'needs to be sharpened',
             ]
         ),
         description='rod pretreatment',
-        a_eln={'component': 'EnumEditQuantity'},
+        # a_eln={'component': 'EnumEditQuantity'},
     )
     sharpened = Quantity(
         type=bool,
         description='tick if rod is sharpened',
+        default=False,
         a_eln={'component': 'BoolEditQuantity'},
     )
     etched = Quantity(
         type=bool,
+        default=False,
         description='tick if rod is etched',
         a_eln={'component': 'BoolEditQuantity'},
     )
@@ -194,13 +200,18 @@ class Feed_rod(CompositeSystem, FzMaterial, EntryData, ArchiveSection):  # FzMat
         type=Datetime,
         a_eln={'component': 'DateTimeEditQuantity'},
     )
-    etching_inhouse = Quantity(
-        type=bool,
+    etching_location = Quantity(
+        type=MEnum(
+            [
+                'in house',
+                'company',
+            ]
+        ),
         description='tick if rod was etched at IKZ',
-        a_eln={'component': 'BoolEditQuantity'},
+        a_eln={'component': 'RadioEnumEditQuantity'},
     )
     # add a quantity to choose
-    furnace_type = Quantity(
+    furnace_type_compatibility = Quantity(
         type=MEnum(
             [
                 'PVA TePla',
@@ -233,10 +244,29 @@ class Feed_rod(CompositeSystem, FzMaterial, EntryData, ArchiveSection):  # FzMat
                 'FZ Halle Regal',
                 'Kiste Keller',
                 'Kiste Glaspasage',
+                'Sent to Etching',
             ]
         ),
         description='location of feed rod',
         a_eln={'component': 'EnumEditQuantity'},
+    )
+    description = Quantity(
+        type=str,
+        description='description of feed rod',
+        a_eln={'component': 'RichTextEditQuantity'},
+    )
+    lab_id = Quantity(
+        type=str,
+        description='lab id of feed rod, it takes the ID from the name of the feed rod entry',
+        # a_eln={'component': 'StringEditQuantity'},
+        a_eln=ELNAnnotation(
+            label='ID',
+        ),
+    )
+    name = Quantity(
+        type=str,
+        description='name of feed rod which also represents its ID ',
+        a_eln={'component': 'StringEditQuantity'},
     )
 
     def normalize(self, archive, logger: BoundLogger) -> None:
@@ -249,7 +279,8 @@ class Feed_rod(CompositeSystem, FzMaterial, EntryData, ArchiveSection):  # FzMat
             logger (BoundLogger): A structlog logger.
         """
         super(Feed_rod, self).normalize(archive, logger)
-
+        if self.name is not None:
+            self.lab_id = self.name
         if self.length and self.diameter:
             density = (2.33 * ureg('kilogram')) / (1000000 * ureg('millimeter**3'))
             self.weight = (np.pi * ((self.diameter / 2) ** 2) * self.length) * (density)
@@ -259,16 +290,16 @@ class Feed_rod(CompositeSystem, FzMaterial, EntryData, ArchiveSection):  # FzMat
         elif (
             self.sharpened == True
             and self.etched == False
-            and self.storage_location != None
+            and self.storage_location != 'Sent to Etching'
         ):
             self.status = 'needs to be etched'
             self.ready_to_use = False
         elif (
             self.sharpened == True
             and self.etched == False
-            and self.storage_location == None
+            and self.storage_location == 'Sent to Etching'
         ):
-            self.status = 'send to etching'
+            self.status = 'sent to etching'
             self.ready_to_use = False
         elif self.sharpened == True and self.etched == True:
             self.status = 'ready to use'
@@ -303,7 +334,7 @@ class Seed(CompositeSystem, FzMaterial, EntryData, ArchiveSection):
     )
     orientation = Quantity(
         type=MEnum(['100', '111', 'Other']),
-        description='rod pretreatment',
+        description='seed orientation',
         a_eln={'component': 'EnumEditQuantity'},
     )
     # chemical_formula = Quantity(
@@ -332,6 +363,27 @@ class FzCrystal(CompositeSystem, FzMaterial, EntryData, ArchiveSection):
     m_def = Section(
         categories=[IKZFZCategory],
         label='Fz Crystal',
+        a_eln=ELNAnnotation(
+            properties=SectionProperties(
+                order=[
+                    'name',
+                    #'lab_id',
+                    'datetime',
+                    'fz_furnace',
+                    'orientation',
+                    'diameter',
+                    'length',
+                    'weight',
+                    'resistivity',
+                    'doping_type',
+                    'location',
+                    # 'chemical_formula', not needed or default value = Si
+                    'status',
+                    'description',
+                ],
+            ),
+            lane_width='800px',
+        ),
     )
     name = Quantity(
         type=str,
@@ -340,18 +392,18 @@ class FzCrystal(CompositeSystem, FzMaterial, EntryData, ArchiveSection):
     )
     lab_id = Quantity(
         type=str,
-        description='lab id of crystal',
-        a_eln={'component': 'StringEditQuantity'},
+        description='lab id of crystal',  # it takes the ID from the name of the crystal entry
+        # a_eln={'component': 'StringEditQuantity'},
     )
-    description_crystal = Quantity(
-        type=str,
-        description='description of crystal',
-        a_eln={'component': 'StringEditQuantity'},
-    )
+    # description_crystal = Quantity(
+    #     type=str,
+    #     description='description of crystal',
+    #     a_eln={'component': 'StringEditQuantity'},
+    # )
     status = Quantity(
-        type=MEnum(['in process', 'finished', 'other']),
+        type=str,
         description='status of crystal',
-        a_eln={'component': 'EnumEditQuantity'},
+        a_eln={'component': 'StringEditQuantity'},
     )
     fz_furnace = Quantity(
         type=MEnum(
@@ -382,11 +434,11 @@ class FzCrystal(CompositeSystem, FzMaterial, EntryData, ArchiveSection):
         description='orientation of crystal',
         a_eln={'component': 'EnumEditQuantity'},
     )
-    resistance = Quantity(
+    resistivity = Quantity(
         type=np.float64,
         description='resistance of crystal',
-        a_eln={'component': 'NumberEditQuantity', 'defaultDisplayUnit': 'ohm'},
-        unit='ohm',
+        a_eln={'component': 'NumberEditQuantity', 'defaultDisplayUnit': 'ohm cm'},
+        unit='ohm cm',
     )
     doping_type = Quantity(
         type=MEnum(['p', 'n', 'other']),
@@ -394,7 +446,23 @@ class FzCrystal(CompositeSystem, FzMaterial, EntryData, ArchiveSection):
         a_eln={'component': 'EnumEditQuantity'},
     )
     location = Quantity(
-        type=MEnum(['Location 1', 'loc. 2', '3']),
+        type=MEnum(
+            [
+                'Schrank Büro R. 124',
+                'Schrank zw. FZ 20 und CZ',
+                'Schrank zw. FZ 20 und CZ, weiße Plastikkiste',
+                'Schrank hinter FZ 30',
+                'Schrank hinter FZ 30, weiße Pappkiste',
+                'Schrank hinter FZ 30, weiße Plastikkiste',
+                'Schrank hinter FZ 30, Rote Kiste',
+                'Rollwagen (Siltronic 4V), Züchtungshalle',
+                'Rollwagen FZ 1520',
+                'Rollwagen mitte, Züchtungshalle',
+                'Schrank hinter EKZ 200',
+                'Kristallregal Züchtungshalle',
+                'other - add in comment where!',
+            ]
+        ),
         a_eln={'component': 'EnumEditQuantity'},
         description='location of crystal',
     )
@@ -409,6 +477,8 @@ class FzCrystal(CompositeSystem, FzMaterial, EntryData, ArchiveSection):
             logger (BoundLogger): A structlog logger.
         """
         super().normalize(archive, logger)
+        if self.name is not None:
+            self.lab_id = self.name
 
 
 class Gas(CompositeSystem, FzMaterial, EntryData, ArchiveSection):

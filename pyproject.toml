@@ -74,7 +74,7 @@ select = [
     "UP",
     # isort
     "I",
-    # pylint 
+    # pylint
     "PL",
 ]
 
@@ -112,3 +112,4 @@ where = ["src"]
 mypackage = "nomad_ikz_fz.schema_packages:mypackage"
 mynormalizer = "nomad_ikz_fz.normalizers:mynormalizer"
 myapp = "nomad_ikz_fz.apps:myapp"
+fzcrysapp = "nomad_ikz_fz.apps:fzcrysapp"
