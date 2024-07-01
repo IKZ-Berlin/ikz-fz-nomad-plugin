@@ -24,7 +24,6 @@ from nomad.datamodel.metainfo.basesections import (
 )
 from nomad.metainfo import Datetime, MEnum, Quantity, SchemaPackage, Section, SubSection
 from nomad.metainfo.metainfo import Category
-from nomad.units import ureg
 from structlog.stdlib import BoundLogger
 
 configuration = config.get_plugin_entry_point('nomad_ikz_fz.schema_packages:mypackage')
@@ -110,7 +109,7 @@ class Feed_rod(CompositeSystem, FzMaterial, EntryData, ArchiveSection):  # FzMat
                     'feed_rod_resistivity',
                     'diameter',
                     'length',
-                    'weight',
+                    #'weight',
                     'rod_surface',
                     'rod_pretreatment',
                     'rod_angle',
@@ -134,10 +133,12 @@ class Feed_rod(CompositeSystem, FzMaterial, EntryData, ArchiveSection):  # FzMat
         a_eln={'component': 'EnumEditQuantity'},
     )
     diameter = Quantity(
-        type=np.float64,
+        type=MEnum(['100 mm', '126 - 130 mm', 'other']),
         description='diameter of feed rod',
-        a_eln={'component': 'NumberEditQuantity', 'defaultDisplayUnit': 'mm'},
-        unit='mm',
+        a_eln={
+            'component': 'EnumEditQuantity',
+        },
+        # unit='mm',
     )
     length = Quantity(
         type=np.float64,
@@ -145,12 +146,12 @@ class Feed_rod(CompositeSystem, FzMaterial, EntryData, ArchiveSection):  # FzMat
         a_eln={'component': 'NumberEditQuantity', 'defaultDisplayUnit': 'mm'},
         unit='mm',
     )
-    weight = Quantity(
-        type=np.float64,
-        description='weight of feed rod',
-        a_eln={'component': 'NumberEditQuantity', 'defaultDisplayUnit': 'kg'},
-        unit='kg',
-    )
+    # weight = Quantity(
+    #     type=np.float64,
+    #     description='weight of feed rod',
+    #     a_eln={'component': 'NumberEditQuantity', 'defaultDisplayUnit': 'kg'},
+    #     unit='kg',
+    # )
     rod_surface = Quantity(
         type=MEnum(['round grinded', 'raw']),
         description='rod surface condition',
@@ -182,7 +183,7 @@ class Feed_rod(CompositeSystem, FzMaterial, EntryData, ArchiveSection):  # FzMat
             ]
         ),
         description='rod pretreatment',
-        # a_eln={'component': 'EnumEditQuantity'},
+        a_eln={},
     )
     sharpened = Quantity(
         type=bool,
@@ -237,23 +238,29 @@ class Feed_rod(CompositeSystem, FzMaterial, EntryData, ArchiveSection):  # FzMat
     #    a_eln={'component': 'BoolEditQuantity'},
     # )
     storage_location = Quantity(
-        type=MEnum(
-            [
-                'Wagen FZ-Halle',
-                'Keller',
-                'FZ Halle Regal',
-                'Kiste Keller',
-                'Kiste Glaspasage',
-                'Sent to Etching',
-            ]
-        ),
+        type=str,
         description='location of feed rod',
-        a_eln={'component': 'EnumEditQuantity'},
+        a_eln={
+            'component': 'EnumEditQuantity',
+            'props': {
+                'suggestions': [
+                    'Wagen FZ-Halle',
+                    'Keller',
+                    'FZ Halle Regal',
+                    'Kiste Keller',
+                    'Kiste Glaspasage',
+                    'Sent to Etching',
+                    'other - add in comment where!',
+                ],
+            },
+        },
     )
     description = Quantity(
         type=str,
         description='description of feed rod',
-        a_eln={'component': 'RichTextEditQuantity'},
+        a_eln={'component': 'RichTextEditQuantity', 'label': 'comment'},
+        # a_eln=ELNAnnotation(label='comment',
+        # ,
     )
     lab_id = Quantity(
         type=str,
@@ -281,9 +288,15 @@ class Feed_rod(CompositeSystem, FzMaterial, EntryData, ArchiveSection):  # FzMat
         super(Feed_rod, self).normalize(archive, logger)
         if self.name is not None:
             self.lab_id = self.name
-        if self.length and self.diameter:
-            density = (2.33 * ureg('kilogram')) / (1000000 * ureg('millimeter**3'))
-            self.weight = (np.pi * ((self.diameter / 2) ** 2) * self.length) * (density)
+        # if self.length and self.diameter:
+        #     density = (2.33 * ureg('kilogram')) / (1000000 * ureg('millimeter**3'))
+        #     self.weight = (np.pi * ((self.diameter / 2) ** 2) * self.length) * (density)
+        if self.etched == True:
+            self.sharpened = True
+        if self.storage_location == 'Sent to Etching':
+            self.sharpened = True
+            self.etched = False
+
         if self.sharpened == False and self.etched == False:
             self.status = 'needs to be sharpened'
             self.ready_to_use = False
@@ -406,17 +419,28 @@ class FzCrystal(CompositeSystem, FzMaterial, EntryData, ArchiveSection):
         a_eln={'component': 'StringEditQuantity'},
     )
     fz_furnace = Quantity(
-        type=MEnum(
-            [
-                '1505/1',
-                '1505/2',
-                '1520',
-                'FZ30',
-            ]
-        ),
+        type=str,
         description='fz furnace used to grow this crystal',
-        a_eln={'component': 'EnumEditQuantity'},
+        a_eln={'component': 'StringEditQuantity'},
     )
+    # fz_furnace = (
+    #     Quantity(
+    #         type=str,
+    #         description='fz furnace used to grow this crystal',
+    #         a_eln={
+    #             'component': 'EnumEditQuantity',
+    #             'props': {
+    #                 'suggestions': [
+    #                     '1505/1',
+    #                     '1505/2',
+    #                     '1520',
+    #                     'FZ30',
+    #                 ]
+    #             },
+    #         },
+    #     ),
+    # )
+
     diameter = Quantity(
         type=np.float64,
         description='diameter of crystal',
@@ -430,9 +454,12 @@ class FzCrystal(CompositeSystem, FzMaterial, EntryData, ArchiveSection):
         unit='mm',
     )
     orientation = Quantity(
-        type=MEnum(['100', '111', 'other']),
+        type=str,
         description='orientation of crystal',
-        a_eln={'component': 'EnumEditQuantity'},
+        a_eln={
+            'component': 'EnumEditQuantity',
+            'props': {'suggestions': ['<100>', '<111>', 'other']},
+        },
     )
     resistivity = Quantity(
         type=np.float64,
@@ -446,25 +473,28 @@ class FzCrystal(CompositeSystem, FzMaterial, EntryData, ArchiveSection):
         a_eln={'component': 'EnumEditQuantity'},
     )
     location = Quantity(
-        type=MEnum(
-            [
-                'Schrank Büro R. 124',
-                'Schrank zw. FZ 20 und CZ',
-                'Schrank zw. FZ 20 und CZ, weiße Plastikkiste',
-                'Schrank hinter FZ 30',
-                'Schrank hinter FZ 30, weiße Pappkiste',
-                'Schrank hinter FZ 30, weiße Plastikkiste',
-                'Schrank hinter FZ 30, Rote Kiste',
-                'Rollwagen (Siltronic 4V), Züchtungshalle',
-                'Rollwagen FZ 1520',
-                'Rollwagen mitte, Züchtungshalle',
-                'Schrank hinter EKZ 200',
-                'Kristallregal Züchtungshalle',
-                'other - add in comment where!',
-            ]
-        ),
-        a_eln={'component': 'EnumEditQuantity'},
+        type=str,
         description='location of crystal',
+        a_eln={
+            'component': 'EnumEditQuantity',
+            'props': {
+                'suggestions': [
+                    'Schrank Büro R. 124',
+                    'Schrank zw. FZ 20 und CZ',
+                    'Schrank zw. FZ 20 und CZ, weiße Plastikkiste',
+                    'Schrank hinter FZ 30',
+                    'Schrank hinter FZ 30, weiße Pappkiste',
+                    'Schrank hinter FZ 30, weiße Plastikkiste',
+                    'Schrank hinter FZ 30, Rote Kiste',
+                    'Rollwagen (Siltronic 4V), Züchtungshalle',
+                    'Rollwagen FZ 1520',
+                    'Rollwagen mitte, Züchtungshalle',
+                    'Schrank hinter EKZ 200',
+                    'Kristallregal Züchtungshalle',
+                    'other - add in comment where!',
+                ]
+            },
+        },
     )
 
     def normalize(self, archive: 'EntryArchive', logger: 'BoundLogger') -> None:
