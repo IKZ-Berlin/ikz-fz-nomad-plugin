@@ -381,7 +381,7 @@ fzcrysapp = AppEntryPoint(
                 'data.resistivity#nomad_ikz_fz.schema_packages.mypackage.FzCrystal',
                 'data.doping_type#nomad_ikz_fz.schema_packages.mypackage.FzCrystal',
                 'data.location#nomad_ikz_fz.schema_packages.mypackage.FzCrystal',
-                'data.datetime#nomad_ikz_fz.schema_packages.mypackage.FzCrystal',
+                'data.process_date#nomad_ikz_fz.schema_packages.mypackage.FzCrystal',
                 'data.description#nomad_ikz_fz.schema_packages.mypackage.FzCrystal',
             ],
             options={
@@ -393,7 +393,7 @@ fzcrysapp = AppEntryPoint(
                 'data.location#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(),
                 'data.resistivity#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(),
                 'data.description#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(),
-                'data.datetime#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(),
+                'data.process_date#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(),
                 'data.fz_furnace#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(),
                 'data.orientation#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(),
                 'data.doping_type#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(),

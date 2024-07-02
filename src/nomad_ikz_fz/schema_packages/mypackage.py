@@ -31,6 +31,44 @@ configuration = config.get_plugin_entry_point('nomad_ikz_fz.schema_packages:mypa
 m_package = SchemaPackage()
 
 
+class Resistivity(ArchiveSection):
+    m_def = Section(a_eln=dict(overview=True))
+    resistivity = Quantity(
+        type=np.float64,
+        description='resistivity of crystal, when a range is given, fill out the minimum and maximum resistivity',
+        a_eln={'component': 'NumberEditQuantity', 'defaultDisplayUnit': 'kohm cm'},
+        unit='kohm cm',
+    )
+    resistivity_minimum = Quantity(
+        type=np.float64,
+        description='minimum resistivity of crystal, only fill out when a range is given',
+        a_eln={'component': 'NumberEditQuantity', 'defaultDisplayUnit': 'kohm cm'},
+        unit='kohm cm',
+    )
+    resistivity_maximum = Quantity(
+        type=np.float64,
+        description='maximum resistivity of crystal, only fill out when a range is given',
+        a_eln={'component': 'NumberEditQuantity', 'defaultDisplayUnit': 'kohm cm'},
+        unit='kohm cm',
+    )
+
+    def normalize(self, archive: 'EntryArchive', logger: 'BoundLogger') -> None:
+        """
+        The normalizer for the `Resistivity` class.
+
+        Args:
+            archive (EntryArchive): The archive containing the section that is being
+            normalized.
+            logger (BoundLogger): A structlog logger.
+        """
+        super().normalize(archive, logger)
+        if (
+            self.resistivity_minimum is not None
+            and self.resistivity_maximum is not None
+        ):
+            self.resistivity = (self.resistivity_minimum + self.resistivity_maximum) / 2
+
+
 class IKZFZCategory(EntryDataCategory):
     m_def = Category(label='IKZ Fz', categories=[EntryDataCategory])
 
@@ -105,7 +143,7 @@ class Feed_rod(CompositeSystem, FzMaterial, EntryData, ArchiveSection):  # FzMat
                     'lab_id',
                     'datetime',
                     'supplier',
-                    'furnace_type_compatibility',
+                    # 'furnace_type_compatibility',
                     'feed_rod_resistivity',
                     'diameter',
                     'length',
@@ -180,9 +218,14 @@ class Feed_rod(CompositeSystem, FzMaterial, EntryData, ArchiveSection):  # FzMat
                 'ready to use',
                 'sent to etching',
                 'needs to be sharpened',
+                'in use',
+                'consumed',
             ]
         ),
-        description='rod pretreatment',
+        description="""
+            current status of the feed rod. Dependent on the values of `sharpened`
+            and `etched` and `location` or if used in a Fz process, the status gets updated automatically.
+            """,
         a_eln={},
     )
     sharpened = Quantity(
@@ -212,16 +255,16 @@ class Feed_rod(CompositeSystem, FzMaterial, EntryData, ArchiveSection):  # FzMat
         a_eln={'component': 'RadioEnumEditQuantity'},
     )
     # add a quantity to choose
-    furnace_type_compatibility = Quantity(
-        type=MEnum(
-            [
-                'PVA TePla',
-                'Steremat',
-            ]
-        ),
-        description='Furnace rod holder compatibility',
-        a_eln={'component': 'EnumEditQuantity'},
-    )
+    # furnace_type_compatibility = Quantity(
+    #     type=MEnum(
+    #         [
+    #             'PVA TePla',
+    #             'Steremat',
+    #         ]
+    #     ),
+    #     description='Furnace rod holder compatibility',
+    #     a_eln={'component': 'EnumEditQuantity'},
+    # )
     feed_rod_resistivity = Quantity(
         type=MEnum(
             [
@@ -250,7 +293,11 @@ class Feed_rod(CompositeSystem, FzMaterial, EntryData, ArchiveSection):  # FzMat
                     'Kiste Keller',
                     'Kiste Glaspasage',
                     'Sent to Etching',
-                    'other - add in comment where!',
+                    'FZ 1520',
+                    'FZ 1505-2',
+                    'FZ 30',
+                    'consumed',
+                    #'other - add in comment where!',
                 ],
             },
         },
@@ -291,32 +338,56 @@ class Feed_rod(CompositeSystem, FzMaterial, EntryData, ArchiveSection):  # FzMat
         # if self.length and self.diameter:
         #     density = (2.33 * ureg('kilogram')) / (1000000 * ureg('millimeter**3'))
         #     self.weight = (np.pi * ((self.diameter / 2) ** 2) * self.length) * (density)
-        if self.etched == True:
-            self.sharpened = True
+        # if self.etched == True:
+        #     self.sharpened = True
+
         if self.storage_location == 'Sent to Etching':
             self.sharpened = True
             self.etched = False
-
-        if self.sharpened == False and self.etched == False:
+            self.status = 'sent to etching'
+        elif (
+            self.sharpened == False
+            and self.etched == False
+            and self.storage_location
+            not in ['Sent to Etching', 'consumed', 'FZ 30', 'FZ 1520', 'FZ 1505-2']
+        ):
             self.status = 'needs to be sharpened'
-            self.ready_to_use = False
+
         elif (
             self.sharpened == True
             and self.etched == False
             and self.storage_location != 'Sent to Etching'
         ):
             self.status = 'needs to be etched'
-            self.ready_to_use = False
+
         elif (
             self.sharpened == True
             and self.etched == False
             and self.storage_location == 'Sent to Etching'
         ):
             self.status = 'sent to etching'
-            self.ready_to_use = False
-        elif self.sharpened == True and self.etched == True:
+
+        elif (
+            self.sharpened == True
+            and self.etched == True
+            and self.storage_location
+            not in ['Sent to Etching', 'consumed', 'FZ 30', 'FZ 1520', 'FZ 1505-2']
+        ):
             self.status = 'ready to use'
-            self.ready_to_use = True
+
+        elif self.storage_location == 'consumed':
+            self.status = 'consumed'
+            self.etched = False
+            self.sharpened = False
+        elif (
+            self.storage_location == 'FZ 30'
+            or self.storage_location == 'FZ 1520'
+            or self.storage_location == 'FZ 1505-2'
+        ):
+            self.status = 'in use'
+            self.etched = False
+            self.sharpened = False
+
         # else:
         #    self.status = 'wurde zum Ätzen geschickt'
         #    self.ready_to_use = False
@@ -382,6 +453,7 @@ class FzCrystal(CompositeSystem, FzMaterial, EntryData, ArchiveSection):
                     'name',
                     #'lab_id',
                     'datetime',
+                    'process_date',
                     'fz_furnace',
                     'orientation',
                     'diameter',
@@ -408,6 +480,17 @@ class FzCrystal(CompositeSystem, FzMaterial, EntryData, ArchiveSection):
         description='lab id of crystal',  # it takes the ID from the name of the crystal entry
         # a_eln={'component': 'StringEditQuantity'},
     )
+    # datetime = (
+    #     Quantity(
+    #         type=Datetime,
+    #         description='date and time of data entry creation or upload',
+    #     ),
+    # )
+    process_date = Quantity(
+        type=Datetime,
+        description='date of crystal growth',
+        a_eln={'component': 'DateTimeEditQuantity'},
+    )
     # description_crystal = Quantity(
     #     type=str,
     #     description='description of crystal',
@@ -415,31 +498,39 @@ class FzCrystal(CompositeSystem, FzMaterial, EntryData, ArchiveSection):
     # )
     status = Quantity(
         type=str,
-        description='status of crystal',
-        a_eln={'component': 'StringEditQuantity'},
+        description='status of the crystal',
+        a_eln={
+            'component': 'EnumEditQuantity',
+            'props': {
+                'suggestions': [
+                    'sold',
+                    'reserved',
+                    'used for seeds',
+                ]
+            },
+        },
     )
+
+    # fz_furnace = Quantity(
+    #     type=str,
+    #     description='fz furnace used to grow this crystal',
+    #     a_eln={'component': 'StringEditQuantity'},
+    # )
     fz_furnace = Quantity(
         type=str,
         description='fz furnace used to grow this crystal',
-        a_eln={'component': 'StringEditQuantity'},
+        a_eln={
+            'component': 'EnumEditQuantity',
+            'props': {
+                'suggestions': [
+                    '1505-1',
+                    '1505-2',
+                    '1520',
+                    'FZ30',
+                ]
+            },
+        },
     )
-    # fz_furnace = (
-    #     Quantity(
-    #         type=str,
-    #         description='fz furnace used to grow this crystal',
-    #         a_eln={
-    #             'component': 'EnumEditQuantity',
-    #             'props': {
-    #                 'suggestions': [
-    #                     '1505/1',
-    #                     '1505/2',
-    #                     '1520',
-    #                     'FZ30',
-    #                 ]
-    #             },
-    #         },
-    #     ),
-    # )
 
     diameter = Quantity(
         type=np.float64,
@@ -458,7 +549,7 @@ class FzCrystal(CompositeSystem, FzMaterial, EntryData, ArchiveSection):
         description='orientation of crystal',
         a_eln={
             'component': 'EnumEditQuantity',
-            'props': {'suggestions': ['<100>', '<111>', 'other']},
+            'props': {'suggestions': ['<100>', '<111>', 'polycrystalline']},
         },
     )
     resistivity = Quantity(
@@ -468,7 +559,14 @@ class FzCrystal(CompositeSystem, FzMaterial, EntryData, ArchiveSection):
         unit='ohm cm',
     )
     doping_type = Quantity(
-        type=MEnum(['p', 'n', 'other']),
+        type=MEnum(
+            [
+                'p',
+                'n',
+                'p/n',
+                'undoped',
+            ]
+        ),
         description='doping type of the crystal',
         a_eln={'component': 'EnumEditQuantity'},
     )
@@ -496,6 +594,9 @@ class FzCrystal(CompositeSystem, FzMaterial, EntryData, ArchiveSection):
             },
         },
     )
+    resistivity_measurement = SubSection(
+        section_def=Resistivity,
+    )
 
     def normalize(self, archive: 'EntryArchive', logger: 'BoundLogger') -> None:
         """
@@ -509,6 +610,8 @@ class FzCrystal(CompositeSystem, FzMaterial, EntryData, ArchiveSection):
         super().normalize(archive, logger)
         if self.name is not None:
             self.lab_id = self.name
+        if self.resistivity_measurement is None:
+            self.resistivity_measurement = Resistivity()
 
 
 class Gas(CompositeSystem, FzMaterial, EntryData, ArchiveSection):
