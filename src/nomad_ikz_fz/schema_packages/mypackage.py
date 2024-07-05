@@ -552,12 +552,12 @@ class FzCrystal(CompositeSystem, FzMaterial, EntryData, ArchiveSection):
             'props': {'suggestions': ['<100>', '<111>', 'polycrystalline']},
         },
     )
-    resistivity = Quantity(
-        type=np.float64,
-        description='resistance of crystal',
-        a_eln={'component': 'NumberEditQuantity', 'defaultDisplayUnit': 'ohm cm'},
-        unit='ohm cm',
-    )
+    # resistivity = Quantity(
+    #     type=np.float64,
+    #     description='resistance of crystal',
+    #     a_eln={'component': 'NumberEditQuantity', 'defaultDisplayUnit': 'ohm cm'},
+    #     unit='ohm cm',
+    # )
     doping_type = Quantity(
         type=MEnum(
             [
