@@ -1,0 +1,8 @@
+diff a/pyproject.toml b/pyproject.toml	(rejected hunks)
+@@ -112,3 +112,6 @@ where = ["src"]
+ mypackage = "nomad_ikz_fz.schema_packages:mypackage"
+ mynormalizer = "nomad_ikz_fz.normalizers:mynormalizer"
+ myapp = "nomad_ikz_fz.apps:myapp"
++[tool.cruft]
++# Avoid updating workflow files, this leads to permissions issues
++skip = [".github/*"]
