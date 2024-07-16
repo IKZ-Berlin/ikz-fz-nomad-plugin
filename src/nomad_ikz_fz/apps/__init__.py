@@ -108,6 +108,7 @@ myapp = AppEntryPoint(
   x:
     quantity: data.length#nomad_ikz_fz.schema_packages.mypackage.Feed_rod
     unit: mm
+  title: Feed Length
   layout:
     xxl:
       minH: 3
@@ -466,6 +467,7 @@ fzcrysapp = AppEntryPoint(
   x:
     unit: mm
     quantity: data.length#nomad_ikz_fz.schema_packages.mypackage.FzCrystal
+  title: Crystal Length
   layout:
     xxl:
       minH: 3
@@ -510,6 +512,7 @@ fzcrysapp = AppEntryPoint(
   x:
     unit: mm
     quantity: data.diameter#nomad_ikz_fz.schema_packages.mypackage.FzCrystal
+  title: Feed Diameter
   layout:
     xxl:
       minH: 3
@@ -554,6 +557,7 @@ fzcrysapp = AppEntryPoint(
   x:
     unit: kohm cm
     quantity: data.resistivity_measurement.resistivity#nomad_ikz_fz.schema_packages.mypackage.FzCrystal
+  title: Resistivity
   layout:
     xxl:
       minH: 3
@@ -602,6 +606,7 @@ fzcrysapp = AppEntryPoint(
   x:
     unit: mm
     quantity: data.diameter#nomad_ikz_fz.schema_packages.mypackage.FzCrystal
+  title: Crystal Length vs. Diameter
   layout:
     xxl:
       minH: 3
@@ -685,6 +690,7 @@ fzcrysapp = AppEntryPoint(
   scale: linear
   x:
     quantity: data.process_date#nomad_ikz_fz.schema_packages.mypackage.FzCrystal
+  title: Process Date
   layout:
     xxl:
       minH: 3
