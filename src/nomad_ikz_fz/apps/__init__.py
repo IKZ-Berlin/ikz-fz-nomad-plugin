@@ -308,7 +308,7 @@ fzcrysapp = AppEntryPoint(
                 'data.status#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(),
                 'data.location#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(),
                 'data.resistivity_measurement.resistivity#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(
-                    unit='kohm cm', format={'decimals': 3}
+                    unit='kohm cm', format={'decimals': 2, 'mode': 'scientific'}
                 ),
                 'data.description#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(),
                 'data.process_date#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(),
