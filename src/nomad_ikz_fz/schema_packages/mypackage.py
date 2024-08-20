@@ -332,7 +332,7 @@ class Feed_rod(CompositeSystem, FzMaterial, EntryData, ArchiveSection):  # FzMat
             normalized.
             logger (BoundLogger): A structlog logger.
         """
-        super(Feed_rod, self).normalize(archive, logger)
+        # super(Feed_rod, self).normalize(archive, logger)
         if self.name is not None:
             self.lab_id = self.name
         # if self.length and self.diameter:
@@ -387,6 +387,7 @@ class Feed_rod(CompositeSystem, FzMaterial, EntryData, ArchiveSection):  # FzMat
             self.status = 'in use'
             self.etched = False
             self.sharpened = False
+        super(Feed_rod, self).normalize(archive, logger)
 
         # else:
         #    self.status = 'wurde zum Ätzen geschickt'
@@ -523,10 +524,10 @@ class FzCrystal(CompositeSystem, FzMaterial, EntryData, ArchiveSection):
             'component': 'EnumEditQuantity',
             'props': {
                 'suggestions': [
-                    '1505-1',
-                    '1505-2',
-                    '1520',
-                    'FZ30',
+                    'FZ 1505-1',
+                    'FZ 1505-2',
+                    'FZ 1520',
+                    'FZ 30',
                 ]
             },
         },

@@ -26,6 +26,7 @@ myapp = AppEntryPoint(
                 'data.resistivity#nomad_ikz_fz.schema_packages.mypackage.Feed_rod',
                 'data.storage_location#nomad_ikz_fz.schema_packages.mypackage.Feed_rod',
                 'data.description#nomad_ikz_fz.schema_packages.mypackage.Feed_rod',
+                'last_processing_time',
             ],
             options={
                 #'entry_id': Column(),
@@ -38,6 +39,8 @@ myapp = AppEntryPoint(
                 'data.storage_location#nomad_ikz_fz.schema_packages.mypackage.Feed_rod': Column(),
                 'data.feed_rod_resistivity#nomad_ikz_fz.schema_packages.mypackage.Feed_rod': Column(),
                 'data.description#nomad_ikz_fz.schema_packages.mypackage.Feed_rod': Column(),
+                'upload_create_time': Column(),
+                'last_processing_time': Column(),
             },
         ),
         filter_menus=FilterMenus(
@@ -316,6 +319,8 @@ fzcrysapp = AppEntryPoint(
                 'data.fz_furnace#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(),
                 'data.orientation#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(),
                 'data.doping_type#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(),
+                'upload_create_time': Column(),
+                'last_processing_time': Column(),
             },
         ),
         filter_menus=FilterMenus(
