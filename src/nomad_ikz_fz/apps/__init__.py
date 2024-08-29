@@ -32,7 +32,7 @@ myapp = AppEntryPoint(
                 #'entry_id': Column(),
                 'data.name#nomad_ikz_fz.schema_packages.mypackage.Feed_rod': Column(),
                 'data.length#nomad_ikz_fz.schema_packages.mypackage.Feed_rod': Column(
-                    unit='mm'
+                    unit='cm'
                 ),
                 'data.diameter#nomad_ikz_fz.schema_packages.mypackage.Feed_rod': Column(),
                 'data.status#nomad_ikz_fz.schema_packages.mypackage.Feed_rod': Column(),
@@ -110,7 +110,7 @@ myapp = AppEntryPoint(
   scale: linear
   x:
     quantity: data.length#nomad_ikz_fz.schema_packages.mypackage.Feed_rod
-    unit: mm
+    unit: cm
   title: Feed Length
   layout:
     xxl:
@@ -735,6 +735,54 @@ fzcrysapp = AppEntryPoint(
 
 """
             )
+        },
+    ),
+)
+
+fzinstrumentapp = AppEntryPoint(
+    name='FzInstrumentApp',
+    description='Explore Fz instruments and parts.',
+    app=App(
+        label='FzInstrumentApp',
+        path='fzinstrumentapp',
+        category='Fz Crystal Growth',
+        columns=Columns(
+            selected=[
+                #'entry_id', name, type, manufacturer, model, serial number, location, description
+                'data.name#nomad_ikz_fz.schema_packages.mypackage.FzInstrumentPart',
+                'data.category#nomad_ikz_fz.schema_packages.mypackage.FzInstrumentPart',
+                'data.instrument_type#nomad_ikz_fz.schema_packages.mypackage.FzInstrumentPart',
+                'data.closet#nomad_ikz_fz.schema_packages.mypackage.FzInstrumentPart',
+                'data.shelf#nomad_ikz_fz.schema_packages.mypackage.FzInstrumentPart',
+            ],
+            options={
+                #'entry_id': Column(),
+                'data.name#nomad_ikz_fz.schema_packages.mypackage.FzInstrumentPart': Column(),
+                'data.category#nomad_ikz_fz.schema_packages.mypackage.FzInstrumentPart': Column(),
+                'data.instrument_type#nomad_ikz_fz.schema_packages.mypackage.FzInstrumentPart': Column(),
+                'data.closet#nomad_ikz_fz.schema_packages.mypackage.FzInstrumentPart': Column(),
+                'data.shelf#nomad_ikz_fz.schema_packages.mypackage.FzInstrumentPart': Column(),
+                'upload_create_time': Column(),
+                'last_processing_time': Column(),
+            },
+        ),
+        filter_menus=FilterMenus(
+            options={
+                'material': FilterMenu(label='Material'),
+                'eln': FilterMenu(label='Electronic Lab Notebook'),
+                'custom_quantities': FilterMenu(label='User Defined Quantities'),
+                'author': FilterMenu(label='Author / Origin / Dataset'),
+                'metadata': FilterMenu(label='Visibility / IDs / Schema'),
+            }
+        ),
+        filters=Filters(
+            include=['*#nomad_ikz_fz.schema_packages.mypackage.FzInstrumentPart'],
+        ),
+        filters_locked={
+            'section_defs.definition_qualified_name': [
+                'nomad_ikz_fz.schema_packages.mypackage.FzInstrumentPart',
+                #'nomad_ikz_fz.schema_packages.mypackage.Coil',
+            ],
         },
     ),
 )
