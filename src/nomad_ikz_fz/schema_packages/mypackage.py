@@ -113,7 +113,7 @@ class FzInstrumentPart(Instrument, EntryData, ArchiveSection):
         a_eln={'component': 'FileEditQuantity'},
     )
 
-    closet = Quantity(
+    cabinet = Quantity(
         type=MEnum(['neben FZ 1505-2', 'neben FZ 1520']),
         description='Location of the instrument part',
         a_eln={'component': 'EnumEditQuantity'},
@@ -136,50 +136,79 @@ class FzInstrumentPart(Instrument, EntryData, ArchiveSection):
         super().normalize(archive, logger)
 
 
-class Coil(FzInstrumentPart, EntryData, ArchiveSection):
+class CoilPart(
+    FzInstrumentPart, ArchiveSection
+):  # should not appear in the list of built-in schemas
+    m_def = Section(
+        categories=[IKZFZCategory],
+        label='Fz Coil Part',
+    )
+    category = Quantity(
+        type=str,
+        default='Coil Part',
+        a_eln={'component': 'StringEditQuantity'},
+    )
+
+
+class Coil(CoilPart, EntryData, ArchiveSection):
     m_def = Section(
         categories=[IKZFZCategory],
         label='Fz Coil',
     )
-    category = Quantity(
-        type=str,
-        default='Coil',
-        a_eln={'component': 'StringEditQuantity'},
-    )
+    # category = Quantity(
+    #     type=str,
+    #     default='Coil',
+    #     a_eln={'component': 'StringEditQuantity'},
+    # )
     instrument_type = Quantity(
         type=str,
-        description='type of coil',
+        description='type of coil part',
         a_eln={
-            'component': 'EnumEditQuantity',
-            'props': {
-                'suggestions': [
-                    'Induktor-Adapter',
-                    'Induktor-Füsse',
-                    'Induktor-',
-                    'Rollinge Induktorfüsse',
-                    'Induktor',
-                    'Pedestal Induktor',
-                    '5 Zoll 1-19 China',
-                    '6 Zoll Ag',
-                    '4 Zoll Standard',
-                    '4 Zoll Diff',
-                    '4 Zoll Diff1-19',
-                    '6 Zoll',
-                    '6 Zoll Projecte',
-                    '1,5 Zoll',
-                    '1 Zoll',
-                    '0,5 Zoll',
-                    '3 Zoll',
-                    '2,5 Zoll',
-                    '2 Zoll',
-                    'Slim-rod',
-                    'Avogadro Prj',
-                    'Induktor - Füße',
-                ],
-            },
+            'component': 'StringEditQuantity',
+            'default': 'Coil',
         },
     )
-
+    crytal_diameter_compatability = Quantity(
+        type=MEnum(
+            [
+                'Induktor',
+                'Pedestal Induktor',
+                '5 Zoll 1-19 China',
+                '6 Zoll Ag',
+                '4 Zoll Standard',
+                '4 Zoll Diff',
+                '4 Zoll Diff1-19',
+                '6 Zoll',
+                '6 Zoll Projecte',
+                '1,5 Zoll',
+                '1 Zoll',
+                '0,5 Zoll',
+                '3 Zoll',
+                '2,5 Zoll',
+                '2 Zoll',
+                'Slim-rod',
+                'Avogadro Prj',
+            ]
+        ),
+        description='diameter of crystal that fits in the coil',
+        a_eln={
+            'component': 'EnumEditQuantity',
+        },
+    )
+    inside_diameter = Quantity(
+        type=np.float64,
+        description='inside diameter of coil',
+        a_eln={'component': 'NumberEditQuantity', 'defaultDisplayUnit': 'mm'},
+        unit='mm',
+    )
+    coil_material = Quantity(
+        type=MEnum(['Cu', 'Ag']),
+        description='Material of the coil',
+        default='Cu',
+        a_eln={
+            'component': 'EnumEditQuantity',
+        },
+    )
     documentation = Quantity(
         type=str,
         description='pdf files containing certificate and other documentation',
@@ -199,19 +228,84 @@ class Coil(FzInstrumentPart, EntryData, ArchiveSection):
         super().normalize(archive, logger)
 
 
-class RodHolder(FzInstrumentPart, EntryData, ArchiveSection):
+class CoilAuxiliary(CoilPart, EntryData, ArchiveSection):
+    m_def = Section(  # categories=[IKZFZCategory],
+        label='Fz Coil Auxiliary',
+    )
+    instrument_type = Quantity(
+        type=str,
+        description='type of coil part',
+        a_eln={
+            'component': 'EnumEditQuantity',
+            'props': {
+                'suggestions': [
+                    'Induktor-Adapter',
+                    'Induktor-Füsse',
+                    'Induktor-',
+                    'Rollinge Induktorfüsse',
+                    'Induktor - Füße',
+                ],
+            },
+        },
+    )
+
+
+class RodHolderParts(FzInstrumentPart, ArchiveSection):
+    m_def = Section(
+        categories=[IKZFZCategory],
+        label='Fz Rod Holder Parts',
+    )
+    category = Quantity(
+        type=str,
+        default='Rod holder parts',
+        a_eln={'component': 'StringEditQuantity'},
+    )
+
+
+class RodHolder(RodHolderParts, EntryData, ArchiveSection):
     m_def = Section(
         categories=[IKZFZCategory],
         label='Fz Rod Holder',
     )
-    category = Quantity(
-        type=str,
-        default='Rod holder',
-        a_eln={'component': 'StringEditQuantity'},
-    )
     instrument_type = Quantity(
         type=str,
         description='type of Rod holder',
+        a_eln={
+            'component': 'EnumEditQuantity',
+            'props': {
+                'suggestions': ['Rodholder'],
+            },
+        },
+    )
+
+    rod_holder_drawing = Quantity(
+        type=str,
+        description='pdf files containing certificate and other documentation',
+        a_eln={'component': 'FileEditQuantity'},
+        a_browser={'adaptor': 'RawFileAdaptor'},
+    )
+
+    def normalize(self, archive: 'EntryArchive', logger: 'BoundLogger') -> None:
+        """
+        The normalizer for the `Seed` class.
+
+        Args:
+            archive (EntryArchive): The archive containing the section that is being
+            normalized.
+            logger (BoundLogger): A structlog logger.
+        """
+        super().normalize(archive, logger)
+
+
+class ZiehSpindel(RodHolderParts, EntryData, ArchiveSection):
+    m_def = Section(
+        categories=[IKZFZCategory],
+        label='Fz ZiehSpindel',
+    )
+
+    instrument_type = Quantity(
+        type=str,
+        description='type of Ziehspindel',
         a_eln={
             'component': 'EnumEditQuantity',
             'props': {
@@ -227,11 +321,34 @@ class RodHolder(FzInstrumentPart, EntryData, ArchiveSection):
         },
     )
 
-    rod_holder_drawing = Quantity(
+    def normalize(self, archive: 'EntryArchive', logger: 'BoundLogger') -> None:
+        """
+        The normalizer for the `Seed` class.
+
+        Args:
+            archive (EntryArchive): The archive containing the section that is being
+            normalized.
+            logger (BoundLogger): A structlog logger.
+        """
+        super().normalize(archive, logger)
+
+
+class OtherRodHolderParts(RodHolderParts, EntryData, ArchiveSection):
+    m_def = Section(
+        categories=[IKZFZCategory],
+        label='Fz Other Rod Holder Parts',
+    )
+    instrument_type = Quantity(
         type=str,
-        description='pdf files containing certificate and other documentation',
-        a_eln={'component': 'FileEditQuantity'},
-        a_browser={'adaptor': 'RawFileAdaptor'},
+        description='type of Rod holder',
+        a_eln={
+            'component': 'EnumEditQuantity',
+            'props': {
+                'suggestions': [
+                    'Dänische Fassung',
+                ],
+            },
+        },
     )
 
     def normalize(self, archive: 'EntryArchive', logger: 'BoundLogger') -> None:
@@ -592,7 +709,7 @@ class Feed_rod(CompositeSystem, FzMaterial, EntryData, ArchiveSection):  # FzMat
     length = Quantity(
         type=np.float64,
         description='length of feed rod',
-        a_eln={'component': 'NumberEditQuantity', 'defaultDisplayUnit': 'cm'},
+        a_eln={'component': 'NumberEditQuantity', 'defaultDisplayUnit': 'mm'},
         unit='mm',
     )
     # weight = Quantity(
