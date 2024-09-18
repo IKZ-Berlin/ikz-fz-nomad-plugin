@@ -520,19 +520,19 @@ class Reflector(FzInstrumentPart, EntryData, ArchiveSection):
         super().normalize(archive, logger)
 
 
-class ReplacementParts(FzInstrumentPart, EntryData, ArchiveSection):
+class FzAuxiliaries(FzInstrumentPart, EntryData, ArchiveSection):
     m_def = Section(
         categories=[IKZFZCategory],
-        label='Fz Replacement Parts',
+        label='Fz Auxiliaries',
     )
     category = Quantity(
         type=str,
-        default='Replacement parts',
+        default='Auxiliaries',
         a_eln={'component': 'StringEditQuantity'},
     )
     instrument_type = Quantity(
         type=str,
-        description='type of Replacement Part',
+        description='type of Auxiliary Part',
         a_eln={
             'component': 'EnumEditQuantity',
             'props': {
@@ -558,6 +558,16 @@ class ReplacementParts(FzInstrumentPart, EntryData, ArchiveSection):
         },
     )
 
+    available_quantity = Quantity(
+        type=int,
+        description='quantity of the auxiliary part available',
+        a_eln={'component': 'NumberEditQuantity'},
+    )
+    specification = Quantity(
+        type=str,
+        description='specification of the auxiliary part',
+        a_eln={'component': 'StringEditQuantity'},
+    )
     # reflector_drawing = Quantity(
     #     type=str,
     #     description='pdf files containing certificate and other documentation',
