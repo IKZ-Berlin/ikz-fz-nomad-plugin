@@ -169,30 +169,11 @@ class Coil(CoilPart, EntryData, ArchiveSection):
         },
     )
     crytal_diameter_compatability = Quantity(
-        type=MEnum(
-            [
-                'Induktor',
-                'Pedestal Induktor',
-                '5 Zoll 1-19 China',
-                '6 Zoll Ag',
-                '4 Zoll Standard',
-                '4 Zoll Diff',
-                '4 Zoll Diff1-19',
-                '6 Zoll',
-                '6 Zoll Projecte',
-                '1,5 Zoll',
-                '1 Zoll',
-                '0,5 Zoll',
-                '3 Zoll',
-                '2,5 Zoll',
-                '2 Zoll',
-                'Slim-rod',
-                'Avogadro Prj',
-            ]
-        ),
+        type=np.float64,
         description='diameter of crystal that fits in the coil',
+        unit='inch',
         a_eln={
-            'component': 'EnumEditQuantity',
+            'component': 'NumberEditQuantity',
         },
     )
     inside_diameter = Quantity(
@@ -229,7 +210,8 @@ class Coil(CoilPart, EntryData, ArchiveSection):
 
 
 class CoilAuxiliary(CoilPart, EntryData, ArchiveSection):
-    m_def = Section(  # categories=[IKZFZCategory],
+    m_def = Section(
+        categories=[IKZFZCategory],
         label='Fz Coil Auxiliary',
     )
     instrument_type = Quantity(
@@ -273,7 +255,7 @@ class RodHolder(RodHolderParts, EntryData, ArchiveSection):
         a_eln={
             'component': 'EnumEditQuantity',
             'props': {
-                'suggestions': ['Rodholder'],
+                'suggestions': ['Rodholder', 'Dänische Fassung'],
             },
         },
     )
@@ -297,7 +279,7 @@ class RodHolder(RodHolderParts, EntryData, ArchiveSection):
         super().normalize(archive, logger)
 
 
-class ZiehSpindel(RodHolderParts, EntryData, ArchiveSection):
+class SpindleExtension(RodHolderParts, EntryData, ArchiveSection):
     m_def = Section(
         categories=[IKZFZCategory],
         label='Fz ZiehSpindel',
@@ -305,47 +287,16 @@ class ZiehSpindel(RodHolderParts, EntryData, ArchiveSection):
 
     instrument_type = Quantity(
         type=str,
-        description='type of Ziehspindel',
+        description='type of Ziehspindel and related parts',
         a_eln={
             'component': 'EnumEditQuantity',
             'props': {
                 'suggestions': [
                     'Ziehspindelverlängerung ',
                     'Ziehspindelverlängerungadapter ',
-                    'Dänische Fassung',
                     'Ziehspindelverlängerung lang (projekt)',
                     'Ziehspindelverlängerung klein für DF (projekt)',
                     'Ziehspindelverlängerung lang für DF',
-                ],
-            },
-        },
-    )
-
-    def normalize(self, archive: 'EntryArchive', logger: 'BoundLogger') -> None:
-        """
-        The normalizer for the `Seed` class.
-
-        Args:
-            archive (EntryArchive): The archive containing the section that is being
-            normalized.
-            logger (BoundLogger): A structlog logger.
-        """
-        super().normalize(archive, logger)
-
-
-class OtherRodHolderParts(RodHolderParts, EntryData, ArchiveSection):
-    m_def = Section(
-        categories=[IKZFZCategory],
-        label='Fz Other Rod Holder Parts',
-    )
-    instrument_type = Quantity(
-        type=str,
-        description='type of Rod holder',
-        a_eln={
-            'component': 'EnumEditQuantity',
-            'props': {
-                'suggestions': [
-                    'Dänische Fassung',
                 ],
             },
         },
@@ -426,14 +377,11 @@ class PreHeater(FzInstrumentPart, EntryData, ArchiveSection):
             'component': 'EnumEditQuantity',
             'props': {
                 'suggestions': [
-                    'Pyrolytisch beschichtete Zündschalen',
-                    'Tantalschale 6.2007',
-                    'Verbindungsstück',
-                    'Tantalschalen',
-                    'Verschwenkung Zündschale',
-                    'Schalenhalterung',
-                    'Zündschalen',
-                    ' Zündschale',
+                    'IR',
+                    'Graphite Shell',
+                    'Ta Shell',
+                    'Mo Shell',
+                    'Other',
                 ],
             },
         },
@@ -483,6 +431,12 @@ class Reflector(FzInstrumentPart, EntryData, ArchiveSection):
                 ],
             },
         },
+    )
+    diameter = Quantity(
+        type=np.float64,
+        description='diameter of Reflector',
+        a_eln={'component': 'NumberEditQuantity', 'defaultDisplayUnit': 'mm'},
+        unit='m',
     )
     # instrument_type = Quantity(
     #     type=int,
@@ -684,11 +638,13 @@ class Feed_rod(CompositeSystem, FzMaterial, EntryData, ArchiveSection):  # FzMat
                     # 'furnace_type_compatibility',
                     'feed_rod_resistivity',
                     'diameter',
+                    'diameter_measured',
                     'length',
                     #'weight',
                     'rod_surface',
                     'rod_pretreatment',
                     'rod_angle',
+                    'mass',
                     # 'chemical_formula', not needed or default value = Si
                     'storage_location',
                     'sharpened',
@@ -716,18 +672,24 @@ class Feed_rod(CompositeSystem, FzMaterial, EntryData, ArchiveSection):  # FzMat
         },
         # unit='mm',
     )
+    diameter_measured = Quantity(
+        type=np.float64,
+        description='manually measured diameter of feed rod',
+        a_eln={'component': 'NumberEditQuantity', 'defaultDisplayUnit': 'mm'},
+        unit='m',
+    )
     length = Quantity(
         type=np.float64,
-        description='length of feed rod',
+        description='length of feed rod calculated automatically from lenght, diameter measured and rod angle.',
         a_eln={'component': 'NumberEditQuantity', 'defaultDisplayUnit': 'mm'},
         unit='mm',
     )
-    # weight = Quantity(
-    #     type=np.float64,
-    #     description='weight of feed rod',
-    #     a_eln={'component': 'NumberEditQuantity', 'defaultDisplayUnit': 'kg'},
-    #     unit='kg',
-    # )
+    mass = Quantity(
+        type=np.float64,
+        description='mass of feed rod. Calculated from length, diameter and rod angle',
+        a_eln={'component': 'NumberEditQuantity', 'defaultDisplayUnit': 'kg'},
+        unit='kg',
+    )
     rod_surface = Quantity(
         type=MEnum(['round grinded', 'raw']),
         description='rod surface condition',
@@ -744,6 +706,7 @@ class Feed_rod(CompositeSystem, FzMaterial, EntryData, ArchiveSection):  # FzMat
         a_eln={'component': 'NumberEditQuantity', 'defaultDisplayUnit': 'deg'},
         unit='deg',
     )
+
     # chemical_formula = Quantity(
     #     type=str,
     #     description='chemical formula of feed rod',
@@ -935,6 +898,24 @@ class Feed_rod(CompositeSystem, FzMaterial, EntryData, ArchiveSection):  # FzMat
             self.status = 'in use'
             self.etched = False
             self.sharpened = False
+
+        # add formula to calculate mass
+        if self.length and self.diameter_measured and self.rod_angle:
+            radius = self.diameter_measured.to('cm').magnitude / 2
+            length = self.length.to('cm').magnitude
+            angle = self.rod_angle.to('radian').magnitude
+            density_Si = 2.336
+            self.mass = (
+                # 1/3dpi*(r^3)/tan(ang)
+                # mass of the cylinder
+                (
+                    np.pi * (radius**2) * length
+                    + (1 / 3) * np.pi * (radius**3) / np.tan(angle)
+                )
+                * (density_Si)
+                / 1000
+            )
+
         super(Feed_rod, self).normalize(archive, logger)
 
         # else:
