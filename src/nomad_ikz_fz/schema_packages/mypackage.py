@@ -154,6 +154,26 @@ class Coil(CoilPart, EntryData, ArchiveSection):
     m_def = Section(
         categories=[IKZFZCategory],
         label='Fz Coil',
+        a_eln=ELNAnnotation(
+            properties=SectionProperties(
+                order=[
+                    'name',
+                    'lab_id',
+                    'datetime',
+                    'category',
+                    'instrument_type',
+                    'crystal_diameter_compatability',
+                    'inside_diameter',
+                    'coil_material',
+                    'photo',
+                    'documentation',
+                    'cabinet',
+                    'shelf',
+                    'description',
+                ],
+            ),
+            lane_width='800px',
+        ),
     )
     # category = Quantity(
     #     type=str,
@@ -168,12 +188,13 @@ class Coil(CoilPart, EntryData, ArchiveSection):
             'default': 'Coil',
         },
     )
-    crytal_diameter_compatability = Quantity(
+    crystal_diameter_compatability = Quantity(
         type=np.float64,
-        description='diameter of crystal that fits in the coil',
-        unit='inch',
+        description='diameter of crystal in inch that fits in the coil',
+        # unit='meter',
         a_eln={
             'component': 'NumberEditQuantity',
+            #'defaultDisplayUnit': 'inch',
         },
     )
     inside_diameter = Quantity(
@@ -213,7 +234,24 @@ class CoilAuxiliary(CoilPart, EntryData, ArchiveSection):
     m_def = Section(
         categories=[IKZFZCategory],
         label='Fz Coil Auxiliary',
+        a_eln=ELNAnnotation(
+            properties=SectionProperties(
+                order=[
+                    'name',
+                    'lab_id',
+                    'datetime',
+                    'category',
+                    'instrument_type',
+                    'photo',
+                    'cabinet',
+                    'shelf',
+                    'description',
+                ],
+            ),
+            lane_width='800px',
+        ),
     )
+
     instrument_type = Quantity(
         type=str,
         description='type of coil part',
@@ -236,7 +274,24 @@ class RodHolderParts(FzInstrumentPart, ArchiveSection):
     m_def = Section(
         categories=[IKZFZCategory],
         label='Fz Rod Holder Parts',
+        a_eln=ELNAnnotation(
+            properties=SectionProperties(
+                order=[
+                    'name',
+                    'lab_id',
+                    'datetime',
+                    'category',
+                    'instrument_type',
+                    'photo',
+                    'cabinet',
+                    'shelf',
+                    'description',
+                ],
+            ),
+            lane_width='800px',
+        ),
     )
+
     category = Quantity(
         type=str,
         default='Rod holder parts',
@@ -248,6 +303,23 @@ class RodHolder(RodHolderParts, EntryData, ArchiveSection):
     m_def = Section(
         categories=[IKZFZCategory],
         label='Fz Rod Holder',
+        a_eln=ELNAnnotation(
+            properties=SectionProperties(
+                order=[
+                    'name',
+                    'lab_id',
+                    'datetime',
+                    'category',
+                    'instrument_type',
+                    'photo',
+                    'rod_holder_drawing',
+                    'cabinet',
+                    'shelf',
+                    'description',
+                ],
+            ),
+            lane_width='800px',
+        ),
     )
     instrument_type = Quantity(
         type=str,
@@ -283,8 +355,23 @@ class SpindleExtension(RodHolderParts, EntryData, ArchiveSection):
     m_def = Section(
         categories=[IKZFZCategory],
         label='Fz ZiehSpindel',
+        a_eln=ELNAnnotation(
+            properties=SectionProperties(
+                order=[
+                    'name',
+                    'lab_id',
+                    'datetime',
+                    'category',
+                    'instrument_type',
+                    'photo',
+                    'cabinet',
+                    'shelf',
+                    'description',
+                ],
+            ),
+            lane_width='800px',
+        ),
     )
-
     instrument_type = Quantity(
         type=str,
         description='type of Ziehspindel and related parts',
@@ -318,6 +405,23 @@ class SeedHolder(FzInstrumentPart, EntryData, ArchiveSection):
     m_def = Section(
         categories=[IKZFZCategory],
         label='Fz Seed Holder',
+        a_eln=ELNAnnotation(
+            properties=SectionProperties(
+                order=[
+                    'name',
+                    'lab_id',
+                    'datetime',
+                    'category',
+                    'instrument_type',
+                    'photo',
+                    'seed_holder_drawing',
+                    'cabinet',
+                    'shelf',
+                    'description',
+                ],
+            ),
+            lane_width='800px',
+        ),
     )
     category = Quantity(
         type=str,
@@ -364,6 +468,23 @@ class PreHeater(FzInstrumentPart, EntryData, ArchiveSection):
     m_def = Section(
         categories=[IKZFZCategory],
         label='Fz Pre-Heater',
+        a_eln=ELNAnnotation(
+            properties=SectionProperties(
+                order=[
+                    'name',
+                    'lab_id',
+                    'datetime',
+                    'category',
+                    'instrument_type',
+                    'photo',
+                    'pre_heater_drawing',
+                    'cabinet',
+                    'shelf',
+                    'description',
+                ],
+            ),
+            lane_width='800px',
+        ),
     )
     category = Quantity(
         type=str,
@@ -406,10 +527,87 @@ class PreHeater(FzInstrumentPart, EntryData, ArchiveSection):
         super().normalize(archive, logger)
 
 
+class AfterHeater(FzInstrumentPart, EntryData, ArchiveSection):
+    m_def = Section(
+        categories=[IKZFZCategory],
+        label='Fz After-Heater',
+        a_eln=ELNAnnotation(
+            properties=SectionProperties(
+                order=[
+                    'name',
+                    'lab_id',
+                    'datetime',
+                    'category',
+                    'instrument_type',
+                    'after_heater_diameter' 'photo',
+                    'after_heater_drawing',
+                    'cabinet',
+                    'shelf',
+                    'description',
+                ],
+            ),
+            lane_width='800px',
+        ),
+    )
+    category = Quantity(
+        type=str,
+        default='After-heater',
+        a_eln={'component': 'StringEditQuantity'},
+    )
+    instrument_type = Quantity(
+        type=str,
+        description='type of After-heater',
+        a_eln={
+            'component': 'StringEditQuantity',
+        },
+    )
+    after_heater_diameter = Quantity(
+        type=np.float64,
+        description='after_heater diameter in mm',
+        a_eln={'component': 'NumberEditQuantity', 'defaultDisplayUnit': 'millimeter'},
+        unit='meter',
+    )
+    after_heater_drawing = Quantity(
+        type=str,
+        description='pdf files containing certificate and other documentation',
+        a_eln={'component': 'FileEditQuantity'},
+        a_browser={'adaptor': 'RawFileAdaptor'},
+    )
+
+    def normalize(self, archive: 'EntryArchive', logger: 'BoundLogger') -> None:
+        """
+        The normalizer for the `AfterHeater` class.
+
+        Args:
+            archive (EntryArchive): The archive containing the section that is being
+            normalized.
+            logger (BoundLogger): A structlog logger.
+        """
+        super().normalize(archive, logger)
+
+
 class Reflector(FzInstrumentPart, EntryData, ArchiveSection):
     m_def = Section(
         categories=[IKZFZCategory],
         label='Fz Reflector',
+        a_eln=ELNAnnotation(
+            properties=SectionProperties(
+                order=[
+                    'name',
+                    'lab_id',
+                    'datetime',
+                    'category',
+                    'instrument_type',
+                    'diameter',
+                    'photo',
+                    'reflector_drawing',
+                    'cabinet',
+                    'shelf',
+                    'description',
+                ],
+            ),
+            lane_width='800px',
+        ),
     )
     category = Quantity(
         type=str,
@@ -478,6 +676,24 @@ class FzAuxiliaries(FzInstrumentPart, EntryData, ArchiveSection):
     m_def = Section(
         categories=[IKZFZCategory],
         label='Fz Auxiliaries',
+        a_eln=ELNAnnotation(
+            properties=SectionProperties(
+                order=[
+                    'name',
+                    'lab_id',
+                    'datetime',
+                    'category',
+                    'instrument_type',
+                    'available_quantity',
+                    'specification',
+                    'photo',
+                    'cabinet',
+                    'shelf',
+                    'description',
+                ],
+            ),
+            lane_width='800px',
+        ),
     )
     category = Quantity(
         type=str,
@@ -1242,6 +1458,87 @@ class FzGrowthStep(ProcessStep, ArchiveSection):
         super().normalize(archive, logger)
 
 
+class RodHolderAssembly(InstrumentReference, ArchiveSection):
+    m_def = Section()
+    reference = Quantity(
+        type=RodHolderParts,
+        a_eln={'component': 'ReferenceEditQuantity'},
+    )
+    position = Quantity(
+        type=str,
+        description='position of the rod holder in the furnace',
+        a_eln={'component': 'StringEditQuantity'},
+    )
+
+
+class CoilAssembly(InstrumentReference, ArchiveSection):
+    m_def = Section()
+    reference = Quantity(
+        type=CoilPart,
+        a_eln={'component': 'ReferenceEditQuantity'},
+    )
+
+
+class ReflectorAssembly(InstrumentReference, ArchiveSection):
+    m_def = Section()
+    reference = Quantity(
+        type=Reflector,
+        a_eln={'component': 'ReferenceEditQuantity'},
+    )
+    position = Quantity(
+        type=str,
+        description='position of the reflector in the furnace',
+        a_eln={'component': 'StringEditQuantity'},
+    )
+
+
+class PreheaterAssembly(InstrumentReference, ArchiveSection):
+    m_def = Section()
+    reference = Quantity(
+        type=PreHeater,
+        a_eln={'component': 'ReferenceEditQuantity'},
+    )
+    position = Quantity(
+        type=str,
+        description='position of the preheater in the furnace',
+        a_eln={'component': 'StringEditQuantity'},
+    )
+
+
+class AfterHeaterAssembly(InstrumentReference, ArchiveSection):
+    m_def = Section()
+    reference = Quantity(
+        type=AfterHeater,
+        a_eln={'component': 'ReferenceEditQuantity'},
+    )
+    position = Quantity(
+        type=str,
+        description='position of the after-heater in the furnace',
+        a_eln={'component': 'StringEditQuantity'},
+    )
+
+
+class SeedHolderAssembly(InstrumentReference, ArchiveSection):
+    m_def = Section()
+    reference = Quantity(
+        type=SeedHolder,
+        a_eln={'component': 'ReferenceEditQuantity'},
+    )
+    position = Quantity(
+        type=str,
+        description='position of the seed holder in the furnace',
+        a_eln={'component': 'StringEditQuantity'},
+    )
+
+
+class FzAuxiliariesAssembly(InstrumentReference, ArchiveSection):
+    m_def = Section()
+    reference = Quantity(
+        type=FzAuxiliaries,
+        a_eln={'component': 'ReferenceEditQuantity'},
+    )
+
+
 class Assembly(FzGrowthStep, ArchiveSection):
     """
     Class autogenerated from yaml schema.
@@ -1261,8 +1558,36 @@ class Assembly(FzGrowthStep, ArchiveSection):
         a_eln={'component': 'EnumEditQuantity'},
         default=['Pre-process'],
     )
-    furnace_parts = SubSection(
-        section_def=FzInstrumentParts,
+    # furnace_parts = SubSection(
+    #     section_def=FzInstrumentParts,
+    #     repeats=True,
+    # )
+    rod_holder_parts = SubSection(
+        section_def=RodHolderAssembly,
+        repeats=True,
+    )
+    coil_parts = SubSection(
+        section_def=CoilAssembly,
+        repeats=True,
+    )
+    reflector_parts = SubSection(
+        section_def=ReflectorAssembly,
+        repeats=True,
+    )
+    preheater_parts = SubSection(
+        section_def=PreheaterAssembly,
+        repeats=True,
+    )
+    afterheater_parts = SubSection(
+        section_def=AfterHeaterAssembly,
+        repeats=True,
+    )
+    seed_holder_parts = SubSection(
+        section_def=SeedHolderAssembly,
+        repeats=True,
+    )
+    auxiliaries_parts = SubSection(
+        section_def=FzAuxiliariesAssembly,
         repeats=True,
     )
 
