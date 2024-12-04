@@ -1,0 +1,6 @@
+[submodule "packages/nomad-material-processing"]
+	path = packages/nomad-material-processing
+	url = https://github.com/FAIRmat-NFDI/nomad-material-processing.git
+[submodule "packages/nomad-ikz-plugin"]
+	path = packages/nomad-ikz-plugin
+	url = https://github.com/IKZ-Berlin/nomad-ikz-plugin.git

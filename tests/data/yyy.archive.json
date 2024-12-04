@@ -1,0 +1,17 @@
+{
+    "data": {
+        "m_def": "nomad_ikz_fz.schema_packages.mypackage.FzGrowthProcess",
+        "name": "yyy",
+        "datetime": "2024-11-08T16:04:14.257898+00:00",
+        "steps": [
+            {
+                "m_def": "nomad_ikz_fz.schema_packages.mypackage.AssemblyStep",
+                "save_assembly":true,
+                "assembly_name":"mynewa3"               
+            }
+        ]
+    },
+    "workflow2": {
+        "name": "zzz"
+    }
+}

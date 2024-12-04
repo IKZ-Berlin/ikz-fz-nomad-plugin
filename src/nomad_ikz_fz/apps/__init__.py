@@ -752,7 +752,7 @@ fzinstrumentapp = AppEntryPoint(
                 'data.name#nomad_ikz_fz.schema_packages.mypackage.FzInstrumentPart',
                 'data.category#nomad_ikz_fz.schema_packages.mypackage.FzInstrumentPart',
                 'data.instrument_type#nomad_ikz_fz.schema_packages.mypackage.FzInstrumentPart',
-                'data.closet#nomad_ikz_fz.schema_packages.mypackage.FzInstrumentPart',
+                'data.cabinet#nomad_ikz_fz.schema_packages.mypackage.FzInstrumentPart',
                 'data.shelf#nomad_ikz_fz.schema_packages.mypackage.FzInstrumentPart',
             ],
             options={
@@ -760,7 +760,7 @@ fzinstrumentapp = AppEntryPoint(
                 'data.name#nomad_ikz_fz.schema_packages.mypackage.FzInstrumentPart': Column(),
                 'data.category#nomad_ikz_fz.schema_packages.mypackage.FzInstrumentPart': Column(),
                 'data.instrument_type#nomad_ikz_fz.schema_packages.mypackage.FzInstrumentPart': Column(),
-                'data.closet#nomad_ikz_fz.schema_packages.mypackage.FzInstrumentPart': Column(),
+                'data.cabinet#nomad_ikz_fz.schema_packages.mypackage.FzInstrumentPart': Column(),
                 'data.shelf#nomad_ikz_fz.schema_packages.mypackage.FzInstrumentPart': Column(),
                 'upload_create_time': Column(),
                 'last_processing_time': Column(),
