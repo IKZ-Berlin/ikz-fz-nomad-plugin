@@ -25,7 +25,10 @@ maintainers = [
     { name = "Sebastian Brueckner", email = "sebastian.brueckner@physik.hu-berlin.de" },
 ]
 license = { file = "LICENSE" }
-dependencies = ["nomad-lab>=1.2.2dev578"]
+dependencies = [
+    "nomad-lab>=1.2.2dev578",
+    "nomad-material-processing>=1.0.4",
+]
 
 [project.urls]
 Repository = "https://github.com/budschi/nomad-ikz-fz"

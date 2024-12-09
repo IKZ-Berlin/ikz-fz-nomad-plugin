@@ -1,0 +1,19 @@
+{
+    "data": {
+        "m_def": "nomad_ikz_fz.schema_packages.mypackage.FzGrowthProcess",
+        "name": "zzz",
+        "datetime": "2024-11-08T16:04:14.257898+00:00",
+        "steps": [
+            {
+                "m_def": "nomad_ikz_fz.schema_packages.mypackage.AssemblyStep",
+                "reference_fzassembly": "../upload/raw/aaa.archive.json#data",
+                "save_assembly": true,
+                "assembly_name": "bla"
+                
+            }
+        ]
+    },
+    "workflow2": {
+        "name": "zzz"
+    }
+}
