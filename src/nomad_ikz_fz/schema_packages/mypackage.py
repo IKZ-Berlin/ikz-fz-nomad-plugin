@@ -29,10 +29,7 @@ from nomad.datamodel.metainfo.basesections import (
 from nomad.datamodel.metainfo.plot import PlotlyFigure, PlotSection
 from nomad.metainfo import Datetime, MEnum, Quantity, SchemaPackage, Section, SubSection
 from nomad.metainfo.metainfo import Category, Reference, SectionProxy
-from nomad.utils import hash
 from structlog.stdlib import BoundLogger
-
-from nomad_ikz_fz.schema_packages.utils import create_archive, get_reference
 
 configuration = config.get_plugin_entry_point('nomad_ikz_fz.schema_packages:mypackage')
 
@@ -43,19 +40,26 @@ class Resistivity(ArchiveSection):
     m_def = Section(a_eln=dict(overview=True))
     resistivity = Quantity(
         type=np.float64,
-        description='resistivity of crystal, when a range is given, fill out the minimum and maximum resistivity',
+        description=(
+            'resistivity of crystal, when a range is given, fill out the minimum and '
+            'maximum resistivity'
+        ),
         a_eln={'component': 'NumberEditQuantity', 'defaultDisplayUnit': 'kohm cm'},
         unit='kohm cm',
     )
     resistivity_minimum = Quantity(
         type=np.float64,
-        description='minimum resistivity of crystal, only fill out when a range is given',
+        description=(
+            'minimum resistivity of crystal, only fill out when a range is given'
+        ),
         a_eln={'component': 'NumberEditQuantity', 'defaultDisplayUnit': 'kohm cm'},
         unit='kohm cm',
     )
     resistivity_maximum = Quantity(
         type=np.float64,
-        description='maximum resistivity of crystal, only fill out when a range is given',
+        description=(
+            'maximum resistivity of crystal, only fill out when a range is given'
+        ),
         a_eln={'component': 'NumberEditQuantity', 'defaultDisplayUnit': 'kohm cm'},
         unit='kohm cm',
     )
@@ -979,7 +983,8 @@ class Feed_rod(CompositeSystem, FzMaterial, EntryData, ArchiveSection):  # FzMat
         ),
         description="""
             current status of the feed rod. Dependent on the values of `sharpened`
-            and `etched` and `location` or if used in a Fz process, the status gets updated automatically.
+            and `etched` and `location` or if used in a Fz process, 
+            the status gets updated automatically.
             """,
         a_eln={},
     )
@@ -1066,7 +1071,9 @@ class Feed_rod(CompositeSystem, FzMaterial, EntryData, ArchiveSection):  # FzMat
     )
     lab_id = Quantity(
         type=str,
-        description='lab id of feed rod, it takes the ID from the name of the feed rod entry',
+        description=(
+            'lab id of feed rod, it takes the ID from the name of the feed rod entry'
+        ),
         # a_eln={'component': 'StringEditQuantity'},
         a_eln=ELNAnnotation(
             label='ID',
@@ -1078,7 +1085,7 @@ class Feed_rod(CompositeSystem, FzMaterial, EntryData, ArchiveSection):  # FzMat
         a_eln={'component': 'StringEditQuantity'},
     )
 
-    def normalize(self, archive, logger: BoundLogger) -> None:
+    def normalize(self, archive, logger: BoundLogger) -> None:  # noqa: PLR0912
         """
         The normalizer for the `Feed_rod` class.
 
@@ -1090,50 +1097,45 @@ class Feed_rod(CompositeSystem, FzMaterial, EntryData, ArchiveSection):  # FzMat
         # super(Feed_rod, self).normalize(archive, logger)
         if self.name is not None:
             self.lab_id = self.name
-        # if self.length and self.diameter:
-        #     density = (2.33 * ureg('kilogram')) / (1000000 * ureg('millimeter**3'))
-        #     self.weight = (np.pi * ((self.diameter / 2) ** 2) * self.length) * (density)
-        # if self.etched == True:
-        #     self.sharpened = True
 
         if self.storage_location == 'Sent to Etching':
             self.sharpened = True
             self.etched = False
             self.status = 'sent to etching'
         elif (
-            self.sharpened == False
-            and self.etched == False
+            not self.sharpened
+            and not self.etched
             and self.storage_location
             not in ['Sent to Etching', 'consumed', 'FZ 30', 'FZ 1520', 'FZ 1505-2']
         ):
             self.status = 'needs to be sharpened'
 
         elif (
-            self.sharpened == True
-            and self.etched == False
+            self.sharpened
+            and not self.etched
             and self.storage_location
             not in ['Sent to Etching', 'consumed', 'FZ 30', 'FZ 1520', 'FZ 1505-2']
         ):
             self.status = 'needs to be etched'
 
         elif (
-            self.sharpened == True
-            and self.etched == False
+            self.sharpened
+            and not self.etched
             and self.storage_location == 'Sent to Etching'
         ):
             self.status = 'sent to etching'
 
         elif (
-            self.sharpened == True
-            and self.etched == True
+            self.sharpened
+            and self.etched
             and self.storage_location
             not in ['Sent to Etching', 'consumed', 'FZ 30', 'FZ 1520', 'FZ 1505-2']
         ):
             self.status = 'ready to use'
 
         elif (
-            self.sharpened == False
-            and self.etched == True
+            not self.sharpened
+            and self.etched
             and self.storage_location
             not in ['Sent to Etching', 'consumed', 'FZ 30', 'FZ 1520', 'FZ 1505-2']
         ):
@@ -1145,9 +1147,7 @@ class Feed_rod(CompositeSystem, FzMaterial, EntryData, ArchiveSection):  # FzMat
             self.etched = False
             self.sharpened = False
         elif (
-            self.storage_location == 'FZ 30'
-            or self.storage_location == 'FZ 1520'
-            or self.storage_location == 'FZ 1505-2'
+            self.storage_location in {'FZ 30', 'FZ 1520', 'FZ 1505-2'}
         ):
             self.status = 'in use'
             self.etched = False
@@ -1176,26 +1176,7 @@ class Feed_rod(CompositeSystem, FzMaterial, EntryData, ArchiveSection):  # FzMat
         elif self.diameter == 'other':
             self.diameter_category = 'other'    
 
-        super(Feed_rod, self).normalize(archive, logger)
-
-        # else:
-        #    self.status = 'wurde zum Ätzen geschickt'
-        #    self.ready_to_use = False
-        # self.figures.append(
-        #     PlotlyFigure(
-        #         figure=(
-        #             go.Figure(
-        #                 data=[
-        #                     go.Table(
-        #                         header=dict(values=['length', 'diameter']),
-        #                         cells=dict(values=[[self.length], [self.diameter]]),
-        #                     )
-        #                 ]
-        #             )
-        #         ).to_plotly_json()
-        #     )
-        # )
-
+        super().normalize(archive, logger)
 
 class Seed(CompositeSystem, FzMaterial, EntryData, ArchiveSection):
     """
@@ -1272,7 +1253,7 @@ class FzCrystal(CompositeSystem, FzMaterial, EntryData, ArchiveSection):
     )
     lab_id = Quantity(
         type=str,
-        description='lab id of crystal',  # it takes the ID from the name of the crystal entry
+        description='lab id of crystal',  
         # a_eln={'component': 'StringEditQuantity'},
     )
     # datetime = (
@@ -1651,35 +1632,7 @@ class Assembly(ArchiveSection): #PlotSection
             normalized.
             logger (BoundLogger): A structlog logger.
         """
-        #super().normalize(archive, logger)
-        # self.figures = []
 
-        # parts_type=[]
-        # part_ids=[]
-        # for parts in self.rod_holder_parts:
-        #     parts_type.append("rod holder part")
-        #     part_ids.append(parts.lab_id)
-        # for parts in self.coil_parts:
-        #     parts_type.append("coil part")
-        #     part_ids.append(parts.lab_id)
-        # for parts in self.reflector_parts:
-        #     parts_type.append("reflector part")
-        #     part_ids.append(parts.lab_id)
-        # for parts in self.preheater_parts:      
-        #     parts_type.append("preheater part")
-        #     part_ids.append(parts.lab_id)
-        # for parts in self.afterheater_parts:
-        #     parts_type.append("afterheater part")
-        #     part_ids.append(parts.lab_id)
-        # for parts in self.seed_holder_parts:
-        #     parts_type.append("seed holder part")
-        #     part_ids.append(parts.lab_id)
-        # for parts in self.auxiliaries_parts:
-        #     parts_type.append("auxiliaries part")
-        #     part_ids.append(parts.lab_id)
-                    
-        # fig = go.Figure(data=[go.Table(header=dict(values=['Type','ID']), cells=dict(values=[parts_type, part_ids]))])
-        # self.figures.append(PlotlyFigure(label='Table', figure=fig.to_plotly_json()))
         super().normalize(archive, logger)
         
 class DigitalProtocol1520(FzGrowthStep, EntryData, ArchiveSection):
@@ -1951,7 +1904,7 @@ class DigitalProtocol1520(FzGrowthStep, EntryData, ArchiveSection):
                     names=colnames,
                     skiprows=1,
                 )
-                # df_process['datum'] = ((df_process['date'] + ' ' + df_process['time']),)
+                # df_process['datum'] = ((df_process['date'] + ' ' + df_process['time'])
 
                 # df_process['datum']  # .values
                 # self.measurment_no = df_process['0']
@@ -2044,9 +1997,7 @@ class SeedMounted(CompositeSystemReference, ArchiveSection):
 class FeedStockPreparation(FzGrowthStep, ArchiveSection):
     
     m_def = Section() #a_eln=dict(overview=True))
-    #     insert
-    #    feed rod --> reference
-    #        seed rod --> options: reference,  from reference copy over orientation of seed and  batch of seeds
+    
     feed_rod_reference =SubSection(
         section_def=FeedRodReference,
     )
@@ -2162,7 +2113,14 @@ class AssemblyStep(FzGrowthStep, PlotSection, ArchiveSection):
         
        
                     
-        fig = go.Figure(data=[go.Table(header=dict(values=['Type','ID']), cells=dict(values=[parts_type, part_ids]))])
+        fig = go.Figure(
+            data=[
+                go.Table(
+                    header=dict(values=['Type', 'ID']),
+                    cells=dict(values=[parts_type, part_ids])
+                )
+            ]
+        )
         self.figures.append(PlotlyFigure(label='Table', figure=fig.to_plotly_json()))
         super().normalize(archive, logger)
 
@@ -2205,7 +2163,7 @@ class FzGrowthProcess(Process, Schema): #EntryData, ArchiveSection):
         repeats=True,
     )
 
-    def normalize(self, archive: 'EntryArchive', logger: 'BoundLogger') -> None:
+    def normalize(self, archive: 'EntryArchive', logger: 'BoundLogger') -> None:  # noqa: PLR0912
         """
         The normalizer for the `FzGrowthProcess` class.
 
@@ -2266,7 +2224,10 @@ class FzGrowthProcess(Process, Schema): #EntryData, ArchiveSection):
             self.feed_stock_preparation.seed_rod_mounted = SeedMounted()
 
         if self.feed_stock_preparation:
-            if self.feed_stock_preparation.feed_rod_reference and self.feed_stock_preparation.seed_rod_mounted:
+            if (
+                self.feed_stock_preparation.feed_rod_reference and 
+                self.feed_stock_preparation.seed_rod_mounted
+            ):
                 fzfeedstock.append(self.feed_stock_preparation.feed_rod_reference)
                 #elif self.feed_stock_preparation.seed_rod_mounted:
                 fzfeedstock.append(self.feed_stock_preparation.seed_rod_mounted)  
