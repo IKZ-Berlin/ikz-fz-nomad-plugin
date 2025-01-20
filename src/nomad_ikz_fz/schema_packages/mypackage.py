@@ -853,7 +853,8 @@ class Feed_rod(CompositeSystem, FzMaterial, EntryData, ArchiveSection):  # FzMat
                     'supplier',
                     # 'furnace_type_compatibility',
                     'feed_rod_resistivity',
-                    'diameter',
+                    #'diameter',
+                    'diameter_category',
                     'diameter_measured',
                     'length',
                     #'weight',
@@ -885,6 +886,17 @@ class Feed_rod(CompositeSystem, FzMaterial, EntryData, ArchiveSection):  # FzMat
         description='diameter of feed rod',
         a_eln={
             'component': 'EnumEditQuantity',
+        },
+        # unit='mm',
+    )
+    diameter_category = Quantity(
+        type=str,
+        description='diameter category of feed rod',
+        a_eln={
+            'component': 'EnumEditQuantity',
+            'props':{
+                'suggestions': ['4"', '5"', '0.5"'],
+            },
         },
         # unit='mm',
     )
@@ -1131,6 +1143,12 @@ class Feed_rod(CompositeSystem, FzMaterial, EntryData, ArchiveSection):  # FzMat
                 * (density_Si)
                 / 1000
             )
+        if self.diameter == "100 mm":
+            self.diameter_category = '4"'
+        elif self.diameter == '126 - 130 mm':
+            self.diameter_category = '5"'    
+        elif self.diameter == 'other':
+            self.diameter_category = 'other'    
 
         super(Feed_rod, self).normalize(archive, logger)
 
