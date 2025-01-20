@@ -894,6 +894,7 @@ class Feed_rod(CompositeSystem, FzMaterial, EntryData, ArchiveSection):  # FzMat
                     'description',
                 ],
             ),
+            hide=['diameter'],
             lane_width='800px',
         ),
     )
@@ -930,7 +931,10 @@ class Feed_rod(CompositeSystem, FzMaterial, EntryData, ArchiveSection):  # FzMat
     )
     length = Quantity(
         type=np.float64,
-        description='length of feed rod calculated automatically from lenght, diameter measured and rod angle.',
+        description=(
+            'length of feed rod calculated automatically from length, '
+            'diameter measured and rod angle.'
+        ),
         a_eln={'component': 'NumberEditQuantity', 'defaultDisplayUnit': 'mm'},
         unit='mm',
     )
