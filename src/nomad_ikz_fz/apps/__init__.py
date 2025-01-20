@@ -34,11 +34,13 @@ myapp = AppEntryPoint(
                 'data.length#nomad_ikz_fz.schema_packages.mypackage.Feed_rod': Column(
                     unit='cm'
                 ),
-                'data.diameter#nomad_ikz_fz.schema_packages.mypackage.Feed_rod': Column(),
+                'data.diameter#nomad_ikz_fz.schema_packages.mypackage.Feed_rod': Column(
+                ),
                 'data.status#nomad_ikz_fz.schema_packages.mypackage.Feed_rod': Column(),
-                'data.storage_location#nomad_ikz_fz.schema_packages.mypackage.Feed_rod': Column(),
-                'data.feed_rod_resistivity#nomad_ikz_fz.schema_packages.mypackage.Feed_rod': Column(),
-                'data.description#nomad_ikz_fz.schema_packages.mypackage.Feed_rod': Column(),
+                'data.storage_location#nomad_ikz_fz.schema_packages.mypackage.Feed_rod': Column(  # noqa: E501
+                ),
+                'data.feed_rod_resistivity#nomad_ikz_fz.schema_packages.mypackage.Feed_rod': Column(),  # noqa: E501
+                'data.description#nomad_ikz_fz.schema_packages.mypackage.Feed_rod': Column(),  # noqa: E501
                 'upload_create_time': Column(),
                 'last_processing_time': Column(),
             },
@@ -287,7 +289,6 @@ fzcrysapp = AppEntryPoint(
         pagination={'page_size': 100},
         columns=Columns(
             selected=[
-                #'entry_id', crystals: name, furnace, diameter, length, status, orientation, resistivity, doping type,  location, datetime, description
                 'data.name#nomad_ikz_fz.schema_packages.mypackage.FzCrystal',
                 'data.fz_furnace#nomad_ikz_fz.schema_packages.mypackage.FzCrystal',
                 'data.diameter#nomad_ikz_fz.schema_packages.mypackage.FzCrystal',
@@ -306,19 +307,19 @@ fzcrysapp = AppEntryPoint(
                 'data.length#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(
                     unit='mm',
                 ),
-                'data.diameter#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(
+                'data.diameter#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(  # noqa: E501
                     unit='mm',
                 ),
-                'data.status#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(),
-                'data.location#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(),
-                'data.resistivity_measurement.resistivity#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(
+                'data.status#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(),  # noqa: E501
+                'data.location#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(),  # noqa: E501
+                'data.resistivity_measurement.resistivity#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(  # noqa: E501
                     unit='kohm cm', format={'decimals': 2, 'mode': 'scientific'}
                 ),
-                'data.description#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(),
-                'data.process_date#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(),
-                'data.fz_furnace#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(),
-                'data.orientation#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(),
-                'data.doping_type#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(),
+                'data.description#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(),  # noqa: E501
+                'data.process_date#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(),  # noqa: E501
+                'data.fz_furnace#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(),  # noqa: E501
+                'data.orientation#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(),  # noqa: E501
+                'data.doping_type#nomad_ikz_fz.schema_packages.mypackage.FzCrystal': Column(),  # noqa: E501
                 'upload_create_time': Column(),
                 'last_processing_time': Column(),
             },
@@ -733,7 +734,7 @@ fzcrysapp = AppEntryPoint(
       y: 26
       x: 0
 
-"""
+"""  # noqa: E501
             )
         },
     ),
@@ -748,7 +749,7 @@ fzinstrumentapp = AppEntryPoint(
         category='Fz Crystal Growth',
         columns=Columns(
             selected=[
-                #'entry_id', name, type, manufacturer, model, serial number, location, description
+               
                 'data.name#nomad_ikz_fz.schema_packages.mypackage.FzInstrumentPart',
                 'data.category#nomad_ikz_fz.schema_packages.mypackage.FzInstrumentPart',
                 'data.instrument_type#nomad_ikz_fz.schema_packages.mypackage.FzInstrumentPart',
@@ -757,11 +758,11 @@ fzinstrumentapp = AppEntryPoint(
             ],
             options={
                 #'entry_id': Column(),
-                'data.name#nomad_ikz_fz.schema_packages.mypackage.FzInstrumentPart': Column(),
-                'data.category#nomad_ikz_fz.schema_packages.mypackage.FzInstrumentPart': Column(),
-                'data.instrument_type#nomad_ikz_fz.schema_packages.mypackage.FzInstrumentPart': Column(),
-                'data.cabinet#nomad_ikz_fz.schema_packages.mypackage.FzInstrumentPart': Column(),
-                'data.shelf#nomad_ikz_fz.schema_packages.mypackage.FzInstrumentPart': Column(),
+                'data.name#nomad_ikz_fz.schema_packages.mypackage.FzInstrumentPart': Column(),  # noqa: E501
+                'data.category#nomad_ikz_fz.schema_packages.mypackage.FzInstrumentPart': Column(),  # noqa: E501
+                'data.instrument_type#nomad_ikz_fz.schema_packages.mypackage.FzInstrumentPart': Column(),  # noqa: E501
+                'data.cabinet#nomad_ikz_fz.schema_packages.mypackage.FzInstrumentPart': Column(),  # noqa: E501
+                'data.shelf#nomad_ikz_fz.schema_packages.mypackage.FzInstrumentPart': Column(),  # noqa: E501
                 'upload_create_time': Column(),
                 'last_processing_time': Column(),
             },
