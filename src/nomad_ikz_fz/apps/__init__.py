@@ -7,6 +7,74 @@ from nomad.config.models.ui import (
     FilterMenu,
     FilterMenus,
     Filters,
+    #SearchQuantities
+)
+
+schema = 'nomad_ikz_fz.schema_packages.mypackage.Feedstock'
+
+feedstockapp = AppEntryPoint(
+    name='FzFeedstockApp',
+    description='App for searching feedstock material.',
+    app=App(
+        label='FzFeedstockApp',
+        path='fzfeedstockapp',
+        category='Fz Crystal Growth',
+        description="""
+        Explore feedstock material.
+        """,
+        # search_quantities=SearchQuantities(
+        #     include=[
+        #         f'*#{schema}',
+        #     ],
+        # ),
+        columns=[
+            Column(
+                search_quantity=f'data.name#{schema}',
+                selected=True,
+                #label='Sputtering ID',
+            ),
+            Column(
+                search_quantity=f'data.grain_size#{schema}',
+                selected=True,
+                label='Grain size',
+                unit='nm',
+            ),
+            Column(
+                search_quantity=f'data.description#{schema}',
+                selected=True,
+                label='Description',
+            ),
+            Column(
+                search_quantity=f'data.storage_location#{schema}',
+                selected=True,
+                label='Storage location',
+            ),
+            Column(
+                search_quantity='upload_create_time',
+                selected=False,
+            ),
+            Column(
+                search_quantity='last_processing_time',
+                selected=True,
+            ),
+        ],
+        filter_menus=FilterMenus(
+            options={
+                'material': FilterMenu(label='Material'),
+                'eln': FilterMenu(label='Electronic Lab Notebook'),
+                'custom_quantities': FilterMenu(label='User Defined Quantities'),
+                'author': FilterMenu(label='Author / Origin / Dataset'),
+                'metadata': FilterMenu(label='Visibility / IDs / Schema'),
+            }
+        ),
+        
+        filters=Filters(
+            include=['*#nomad_ikz_fz.schema_packages.mypackage.Feedstock'],
+        ),
+        filters_locked={
+            'entry_type': 'Feedstock',
+        },
+    )
 )
 
 myapp = AppEntryPoint(
@@ -34,7 +102,7 @@ myapp = AppEntryPoint(
                 'data.length#nomad_ikz_fz.schema_packages.mypackage.Feed_rod': Column(
                     unit='cm'
                 ),
-                'data.diameter#nomad_ikz_fz.schema_packages.mypackage.Feed_rod': Column(
+                'data.diameter_category#nomad_ikz_fz.schema_packages.mypackage.Feed_rod': Column(
                 ),
                 'data.status#nomad_ikz_fz.schema_packages.mypackage.Feed_rod': Column(),
                 'data.storage_location#nomad_ikz_fz.schema_packages.mypackage.Feed_rod': Column(  # noqa: E501

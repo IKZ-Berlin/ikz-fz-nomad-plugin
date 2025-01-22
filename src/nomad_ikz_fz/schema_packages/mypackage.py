@@ -838,6 +838,81 @@ class FzMaterial(System, ArchiveSection):
         """
         super().normalize(archive, logger)
 
+class Feedstock(CompositeSystem, FzMaterial, EntryData, ArchiveSection):
+    m_def = Section(
+        categories=[IKZFZCategory],
+        label='Fz Feedstock',
+        # links=[],
+        a_eln=ELNAnnotation(
+             properties=SectionProperties(
+                order=[
+                    'name',
+                    'lab_id',
+                    'datetime',
+                    'supplier',
+                    'grain_size',
+                    'storage_location',
+                    'description',
+                ],
+            ),
+        ),
+    )
+    grain_size = Quantity(
+        type=np.float64,
+        description='grain size of feedstock',
+        a_eln={'component': 'NumberEditQuantity', 'defaultDisplayUnit': 'mm'},
+        unit='mm',
+    )
+
+    supplier = Quantity(
+        type=MEnum(['Wacker', 'REC', 'other']),
+        description='feedstock material options',
+        a_eln={'component': 'EnumEditQuantity'},
+    )
+    storage_location = Quantity(
+        type=str,
+        description='location of feedstock',
+        a_eln={
+            'component': 'EnumEditQuantity',
+            'props': {
+                'suggestions': [
+                    'Wagen FZ-Halle',
+                    'Keller',
+                    'FZ Halle Regal',
+                    'Kiste Keller',
+                    'Kiste Glaspasage',
+                    'Sent to Etching',
+                    'FZ 1520',
+                    'FZ 1505-2',
+                    'FZ 30',
+                    'consumed',
+                    #'other - add in comment where!',
+                ],
+            },
+        },
+    )
+    description = Quantity(
+        type=str,
+        description='description of feedstock',
+        a_eln={'component': 'RichTextEditQuantity', 'label': 'comment'},
+        # a_eln=ELNAnnotation(label='comment',
+        # ,
+    )
+    lab_id = Quantity(
+        type=str,
+        description=(
+            'lab id of feedstock, it takes the ID from the name of the feedstock entry'
+        ),
+        # a_eln={'component': 'StringEditQuantity'},
+        a_eln=ELNAnnotation(
+            label='ID',
+        ),
+    )
+    name = Quantity(
+        type=str,
+        description='name of feedstock which also represents its ID ',
+        a_eln={'component': 'StringEditQuantity'},
+    )
 
 class Feed_rod(CompositeSystem, FzMaterial, EntryData, ArchiveSection):  # FzMaterial
     """
