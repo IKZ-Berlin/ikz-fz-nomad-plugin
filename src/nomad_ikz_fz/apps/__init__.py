@@ -7,7 +7,7 @@ from nomad.config.models.ui import (
     FilterMenu,
     FilterMenus,
     Filters,
-    #SearchQuantities
+    SearchQuantities
 )
 
 schema = 'nomad_ikz_fz.schema_packages.mypackage.Feedstock'
@@ -22,11 +22,11 @@ feedstockapp = AppEntryPoint(
         description="""
         Explore feedstock material.
         """,
-        # search_quantities=SearchQuantities(
-        #     include=[
-        #         f'*#{schema}',
-        #     ],
-        # ),
+        search_quantities=SearchQuantities(
+            include=[
+                f'*#{schema}',
+            ],
+        ),
         columns=[
             Column(
                 search_quantity=f'data.name#{schema}',
@@ -37,7 +37,7 @@ feedstockapp = AppEntryPoint(
                 search_quantity=f'data.grain_size#{schema}',
                 selected=True,
                 label='Grain size',
-                unit='nm',
+                unit='mm',
             ),
             Column(
                 search_quantity=f'data.description#{schema}',
@@ -68,9 +68,9 @@ feedstockapp = AppEntryPoint(
             }
         ),
         
-        filters=Filters(
-            include=['*#nomad_ikz_fz.schema_packages.mypackage.Feedstock'],
-        ),
+        # filters=Filters(
+        #     include=['*#nomad_ikz_fz.schema_packages.mypackage.Feedstock'],
+        # ),
         filters_locked={
             'entry_type': 'Feedstock',
         },
