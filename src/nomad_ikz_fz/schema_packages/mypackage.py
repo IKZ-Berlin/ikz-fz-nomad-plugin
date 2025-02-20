@@ -24,7 +24,6 @@ from nomad.datamodel.metainfo.basesections import (
     InstrumentReference,
     Process,
     ProcessStep,
-    System,
 )
 from nomad.datamodel.metainfo.plot import PlotlyFigure, PlotSection
 from nomad.metainfo import Datetime, MEnum, Quantity, SchemaPackage, Section, SubSection
@@ -1016,7 +1015,7 @@ class Feed_rod(FzMaterial, EntryData, ArchiveSection):  # FzMaterial
         a_eln={
             'component': 'EnumEditQuantity',
             'props':{
-                'suggestions': ['4"', '5"', '0.5"'],
+                'suggestions': ['8mm', '100mm', '126-130mm', '150mm'],
             },
         },
         # unit='mm',
