@@ -2249,9 +2249,15 @@ class FzGrowthProcess(Process, Schema): #EntryData, ArchiveSection):
         repeats=True,
     )
     fz_furnace= Quantity(
-        type=MEnum(["Fz 30" , "Fz 1505", "Fz 1520"]),
+        type=MEnum(["Fz 30" , "Fz 1505-1", "Fz 1505-2", "Fz 1520"]),
         description='Choose Fz furnace that was used for this process.',
         a_eln={'component': 'EnumEditQuantity'},
+    )
+    lab_id = Quantity(
+        type=str,
+        description='lab id of the process',
+        a_eln={'component': 'StringEditQuantity',
+               'label': 'Experiment No.'},
     )
     fzmaterials = SubSection(
         section_def=Fz_Materials,
