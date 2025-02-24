@@ -997,9 +997,13 @@ class Feed_rod(FzMaterial, EntryData, ArchiveSection):  # FzMaterial
     )
 
     supplier = Quantity(
-        type=MEnum(['Wacker', 'ASIMI', 'REC', 'other']),
+        type=str,
         description='feed rod material options',
-        a_eln={'component': 'EnumEditQuantity'},
+        a_eln={'component': 'EnumEditQuantity',
+               'props': {
+                   'suggestions': ['Wacker', 'REC', 'ASIMI', ],
+               },
+               },
     )
     diameter = Quantity(
         type=MEnum(['100 mm', '126 - 130 mm', 'other']),
@@ -1015,7 +1019,7 @@ class Feed_rod(FzMaterial, EntryData, ArchiveSection):  # FzMaterial
         a_eln={
             'component': 'EnumEditQuantity',
             'props':{
-                'suggestions': ['8mm', '100mm', '126-130mm', '150mm'],
+                'suggestions': ['3 mm', '8 mm', '100 mm', '126 - 130 mm', '150 mm' ],
             },
         },
         # unit='mm',
@@ -1263,11 +1267,11 @@ class Feed_rod(FzMaterial, EntryData, ArchiveSection):  # FzMaterial
                 / 1000
             )
         if self.diameter == "100 mm":
-            self.diameter_category = '4"'
+            self.diameter_category = '100 mm'
         elif self.diameter == '126 - 130 mm':
-            self.diameter_category = '5"'    
-        elif self.diameter == 'other':
-            self.diameter_category = 'other'    
+            self.diameter_category = '126 - 130 mm'    
+        # elif self.diameter == 'other':
+        #     self.diameter_category = 'other'    
 
         super().normalize(archive, logger)
 
