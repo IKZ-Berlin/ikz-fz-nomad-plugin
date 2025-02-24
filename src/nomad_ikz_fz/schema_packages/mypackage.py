@@ -139,14 +139,22 @@ class FzInstrumentPart(Instrument, EntryData, ArchiveSection):
     )
 
     cabinet = Quantity(
-        type=MEnum(['neben FZ 1505-2', 'neben FZ 1520']),
+        type=str, #MEnum(['neben FZ 1505-2', 'neben FZ 1520', ]),
         description='Location of the instrument part',
-        a_eln={'component': 'EnumEditQuantity'},
+        a_eln={'component': 'EnumEditQuantity',
+               'props': {
+                   'suggestions': ['neben FZ 1505-2', 'neben FZ 1520', ],
+               },
+               },
     )
     shelf = Quantity(
-        type=MEnum(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']),
+        type=str, #MEnum(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']),
         description='Shelf of the instrument part',
-        a_eln={'component': 'EnumEditQuantity'},
+        a_eln={'component': 'EnumEditQuantity',
+               'props': {
+                   'suggestions': ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
+               },
+               },
     )
 
     def normalize(self, archive: 'EntryArchive', logger: 'BoundLogger') -> None:
