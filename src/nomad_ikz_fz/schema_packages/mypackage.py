@@ -224,10 +224,10 @@ class Coil(CoilPart, EntryData, ArchiveSection):
     crystal_diameter_compatability = Quantity(
         type=np.float64,
         description='diameter of crystal in inch that fits in the coil',
-        # unit='meter',
+        unit='inch',
         a_eln={
             'component': 'NumberEditQuantity',
-            #'defaultDisplayUnit': 'inch',
+            'defaultDisplayUnit': 'inch',
         },
     )
     inside_diameter = Quantity(

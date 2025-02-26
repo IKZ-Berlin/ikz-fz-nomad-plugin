@@ -7,75 +7,77 @@ from nomad.config.models.ui import (
     FilterMenu,
     FilterMenus,
     Filters,
-    SearchQuantities
+    SearchQuantities,
+    Menu,
+    MenuItemPeriodicTable, MenuItemHistogram, MenuItemTerms, 
 )
 
 schema = 'nomad_ikz_fz.schema_packages.mypackage.Feedstock'
 
-feedstockapp = AppEntryPoint(
-    name='FzFeedstockApp',
-    description='App for searching feedstock material.',
-    app=App(
-        label='FzFeedstockApp',
-        path='fzfeedstockapp',
-        category='Fz Crystal Growth',
-        description="""
-        Explore feedstock material.
-        """,
-        search_quantities=SearchQuantities(
-            include=[
-                f'*#{schema}',
-            ],
-        ),
-        columns=[
-            Column(
-                search_quantity=f'data.name#{schema}',
-                selected=True,
-                #label='Sputtering ID',
-            ),
-            Column(
-                search_quantity=f'data.grain_size#{schema}',
-                selected=True,
-                label='Grain size',
-                unit='mm',
-            ),
-            Column(
-                search_quantity=f'data.description#{schema}',
-                selected=True,
-                label='Description',
-            ),
-            Column(
-                search_quantity=f'data.storage_location#{schema}',
-                selected=True,
-                label='Storage location',
-            ),
-            Column(
-                search_quantity='upload_create_time',
-                selected=False,
-            ),
-            Column(
-                search_quantity='last_processing_time',
-                selected=True,
-            ),
-        ],
-        filter_menus=FilterMenus(
-            options={
-                'material': FilterMenu(label='Material'),
-                'eln': FilterMenu(label='Electronic Lab Notebook'),
-                'custom_quantities': FilterMenu(label='User Defined Quantities'),
-                'author': FilterMenu(label='Author / Origin / Dataset'),
-                'metadata': FilterMenu(label='Visibility / IDs / Schema'),
-            }
-        ),
+# feedstockapp = AppEntryPoint(
+#     name='FzFeedstockApp',
+#     description='App for searching feedstock material.',
+#     app=App(
+#         label='FzFeedstockApp',
+#         path='fzfeedstockapp',
+#         category='Fz Crystal Growth',
+#         description="""
+#         Explore feedstock material.
+#         """,
+#         search_quantities=SearchQuantities(
+#             include=[
+#                 f'*#{schema}',
+#             ],
+#         ),
+#         columns=[
+#             Column(
+#                 search_quantity=f'data.name#{schema}',
+#                 selected=True,
+#                 #label='Sputtering ID',
+#             ),
+#             Column(
+#                 search_quantity=f'data.grain_size#{schema}',
+#                 selected=True,
+#                 label='Grain size',
+#                 unit='mm',
+#             ),
+#             Column(
+#                 search_quantity=f'data.description#{schema}',
+#                 selected=True,
+#                 label='Description',
+#             ),
+#             Column(
+#                 search_quantity=f'data.storage_location#{schema}',
+#                 selected=True,
+#                 label='Storage location',
+#             ),
+#             Column(
+#                 search_quantity='upload_create_time',
+#                 selected=False,
+#             ),
+#             Column(
+#                 search_quantity='last_processing_time',
+#                 selected=True,
+#             ),
+#         ],
+#         filter_menus=FilterMenus(
+#             options={
+#                 'material': FilterMenu(label='Material'),
+#                 'eln': FilterMenu(label='Electronic Lab Notebook'),
+#                 'custom_quantities': FilterMenu(label='User Defined Quantities'),
+#                 'author': FilterMenu(label='Author / Origin / Dataset'),
+#                 'metadata': FilterMenu(label='Visibility / IDs / Schema'),
+#             }
+#         ),
         
-        # filters=Filters(
-        #     include=['*#nomad_ikz_fz.schema_packages.mypackage.Feedstock'],
-        # ),
-        filters_locked={
-            'entry_type': 'Feedstock',
-        },
-    )
-)
+#         # filters=Filters(
+#         #     include=['*#nomad_ikz_fz.schema_packages.mypackage.Feedstock'],
+#         # ),
+#         filters_locked={
+#             'entry_type': 'Feedstock',
+#         },
+#     )
+# )
 
 myapp = AppEntryPoint(
     name='FzFeedRodApp',
@@ -113,15 +115,15 @@ myapp = AppEntryPoint(
                 'last_processing_time': Column(),
             },
         ),
-        filter_menus=FilterMenus(
-            options={
-                'material': FilterMenu(label='Material'),
-                'eln': FilterMenu(label='Electronic Lab Notebook'),
-                'custom_quantities': FilterMenu(label='User Defined Quantities'),
-                'author': FilterMenu(label='Author / Origin / Dataset'),
-                'metadata': FilterMenu(label='Visibility / IDs / Schema'),
-            }
-        ),
+        # filter_menus=FilterMenus(
+        #     options={
+        #         'material': FilterMenu(label='Material'),
+        #         'eln': FilterMenu(label='Electronic Lab Notebook'),
+        #         'custom_quantities': FilterMenu(label='User Defined Quantities'),
+        #         'author': FilterMenu(label='Author / Origin / Dataset'),
+        #         'metadata': FilterMenu(label='Visibility / IDs / Schema'),
+        #     }
+        # ),
         filters=Filters(
             include=['*#nomad_ikz_fz.schema_packages.mypackage.Feed_rod'],
         ),
@@ -130,219 +132,293 @@ myapp = AppEntryPoint(
                 'nomad_ikz_fz.schema_packages.mypackage.Feed_rod'
             ],
         },
-        dashboard={
-            'widgets': yaml.safe_load(
-                """
-- type: terms
-  showinput: false
-  scale: linear
-  quantity: data.status#nomad_ikz_fz.schema_packages.mypackage.Feed_rod
-  layout:
-    xxl:
-      minH: 3
-      minW: 3
-      h: 3
-      w: 7
-      y: 3
-      x: 11
-    xl:
-      minH: 3
-      minW: 3
-      h: 3
-      w: 6
-      y: 0
-      x: 8
-    lg:
-      minH: 3
-      minW: 3
-      h: 3
-      w: 5
-      y: 4
-      x: 11
-    md:
-      minH: 3
-      minW: 3
-      h: 3
-      w: 6
-      y: 0
-      x: 6
-    sm:
-      minH: 3
-      minW: 3
-      h: 3
-      w: 6
-      y: 0
-      x: 0
-- type: histogram
-  showinput: true
-  autorange: false
-  nbins: 30
-  scale: linear
-  x:
-    quantity: data.length#nomad_ikz_fz.schema_packages.mypackage.Feed_rod
-    unit: cm
-  title: Feed Length
-  layout:
-    xxl:
-      minH: 3
-      minW: 3
-      h: 9
-      w: 11
-      y: 0
-      x: 0
-    xl:
-      minH: 3
-      minW: 3
-      h: 6
-      w: 8
-      y: 0
-      x: 0
-    lg:
-      minH: 3
-      minW: 3
-      h: 4
-      w: 16
-      y: 0
-      x: 0
-    md:
-      minH: 3
-      minW: 3
-      h: 3
-      w: 6
-      y: 3
-      x: 6
-    sm:
-      minH: 3
-      minW: 3
-      h: 3
-      w: 6
-      y: 6
-      x: 0
-- type: terms
-  showinput: false
-  scale: linear
-  quantity: data.diameter#nomad_ikz_fz.schema_packages.mypackage.Feed_rod
-  layout:
-    xxl:
-      minH: 3
-      minW: 3
-      h: 3
-      w: 7
-      y: 0
-      x: 11
-    xl:
-      minH: 3
-      minW: 3
-      h: 3
-      w: 5
-      y: 0
-      x: 14
-    lg:
-      minH: 3
-      minW: 3
-      h: 3
-      w: 5
-      y: 4
-      x: 0
-    md:
-      minH: 3
-      minW: 3
-      h: 3
-      w: 6
-      y: 3
-      x: 0
-    sm:
-      minH: 3
-      minW: 3
-      h: 3
-      w: 6
-      y: 3
-      x: 0
-- type: terms
-  showinput: false
-  scale: linear
-  quantity: data.storage_location#nomad_ikz_fz.schema_packages.mypackage.Feed_rod
-  layout:
-    xxl:
-      minH: 3
-      minW: 3
-      h: 9
-      w: 5
-      y: 0
-      x: 18
-    xl:
-      minH: 3
-      minW: 3
-      h: 6
-      w: 6
-      y: 0
-      x: 19
-    lg:
-      minH: 3
-      minW: 3
-      h: 7
-      w: 5
-      y: 0
-      x: 16
-    md:
-      minH: 3
-      minW: 3
-      h: 6
-      w: 6
-      y: 0
-      x: 12
-    sm:
-      minH: 3
-      minW: 3
-      h: 6
-      w: 6
-      y: 3
-      x: 6
-- type: terms
-  showinput: false
-  scale: linear
-  quantity: data.feed_rod_resistivity#nomad_ikz_fz.schema_packages.mypackage.Feed_rod
-  layout:
-    xxl:
-      minH: 3
-      minW: 3
-      h: 3
-      w: 7
-      y: 6
-      x: 11
-    xl:
-      minH: 3
-      minW: 3
-      h: 3
-      w: 6
-      y: 3
-      x: 8
-    lg:
-      minH: 3
-      minW: 3
-      h: 3
-      w: 6
-      y: 4
-      x: 5
-    md:
-      minH: 3
-      minW: 3
-      h: 3
-      w: 6
-      y: 0
-      x: 0
-    sm:
-      minH: 3
-      minW: 3
-      h: 3
-      w: 6
-      y: 0
-      x: 6
+        menu=Menu(
+            title='Feed Rods',
+            items=[
+                MenuItemTerms(
+                    search_quantity='data.status#nomad_ikz_fz.schema_packages.mypackage.Feed_rod',
+                    width=12,
+                    options=6,
+                    show_input=False,
+                ),
+                MenuItemTerms(
+                    search_quantity='data.diameter_category#nomad_ikz_fz.schema_packages.mypackage.Feed_rod',
+                    width=12,
+                    options=5,
+                    show_input=False,
+                ),
+                MenuItemTerms(
+                    search_quantity='data.feed_rod_resistivity#nomad_ikz_fz.schema_packages.mypackage.Feed_rod',
+                    width=12,
+                    options=2,
+                    show_input=False,
+                ),
+                MenuItemHistogram(
+                    x='data.length#nomad_ikz_fz.schema_packages.mypackage.Feed_rod',
+                    width=12,
+                ),    
+                MenuItemTerms(
+                    search_quantity='data.storage_location#nomad_ikz_fz.schema_packages.mypackage.Feed_rod',
+                    width=12,
+                    options=10,
+                    show_input=False,
+                ),
+                # MenuItemTerms(
+                #     search_quantity='data.lab_id#nomad_ikz_fz.schema_packages.mypackage.Feed_rod',
+                #     width=12,
+                #     #options=10,
+                # ),
+                # MenuItemTerms(
+                #     search_quantity='entry_name',
+                #     width=12,
+                # ),
+            ]
+        ),
+        # menu = Menu(
+        #     title='Material',
+        #     items=[
+        #         Menu(
+        #             title='elements',
+        #             items=[
+                        
+        #                 MenuItemTerms(
+        #                     quantity='data.status',
+        #                     width=6,
+        #                     options=0,
+        #                 ),
+        #                 # MenuItemTerms(
+        #                 #     quantity='data.diameter_category',
+        #                 #     width=6,
+        #                 #     options=0,
+        #                 # ),
+        #                 # MenuItemHistogram(
+        #                 #     x='data.length',
+        #                 # ),
+        #                 # MenuItemHistogram(
+        #                 #     x='data.feed_rod_resistivity',
+        #                 # ),
+        #                 # MenuItemTerms(
+        #                 #     quantity='data.storage_location',
+        #                 #     width=6,
+        #                 #     options=0,
+        #                 # ),
+        #             ]
+        #         )
+        #     ]
+        # ),
+#         dashboard={
+#             'widgets': yaml.safe_load(
+#                 """
+# - type: terms
+#   showinput: false
+#   scale: linear
+#   quantity: data.status#nomad_ikz_fz.schema_packages.mypackage.Feed_rod
+#   layout:
+#     xxl:
+#       minH: 3
+#       minW: 3
+#       h: 3
+#       w: 7
+#       y: 3
+#       x: 11
+#     xl:
+#       minH: 3
+#       minW: 3
+#       h: 3
+#       w: 6
+#       y: 0
+#       x: 8
+#     lg:
+#       minH: 3
+#       minW: 3
+#       h: 3
+#       w: 5
+#       y: 4
+#       x: 11
+#     md:
+#       minH: 3
+#       minW: 3
+#       h: 3
+#       w: 6
+#       y: 0
+#       x: 6
+#     sm:
+#       minH: 3
+#       minW: 3
+#       h: 3
+#       w: 6
+#       y: 0
+#       x: 0
+# - type: histogram
+#   showinput: true
+#   autorange: false
+#   nbins: 30
+#   scale: linear
+#   x:
+#     quantity: data.length#nomad_ikz_fz.schema_packages.mypackage.Feed_rod
+#     unit: cm
+#   title: Feed Length
+#   layout:
+#     xxl:
+#       minH: 3
+#       minW: 3
+#       h: 9
+#       w: 11
+#       y: 0
+#       x: 0
+#     xl:
+#       minH: 3
+#       minW: 3
+#       h: 6
+#       w: 8
+#       y: 0
+#       x: 0
+#     lg:
+#       minH: 3
+#       minW: 3
+#       h: 4
+#       w: 16
+#       y: 0
+#       x: 0
+#     md:
+#       minH: 3
+#       minW: 3
+#       h: 3
+#       w: 6
+#       y: 3
+#       x: 6
+#     sm:
+#       minH: 3
+#       minW: 3
+#       h: 3
+#       w: 6
+#       y: 6
+#       x: 0
+# - type: terms
+#   showinput: false
+#   scale: linear
+#   quantity: data.diameter#nomad_ikz_fz.schema_packages.mypackage.Feed_rod
+#   layout:
+#     xxl:
+#       minH: 3
+#       minW: 3
+#       h: 3
+#       w: 7
+#       y: 0
+#       x: 11
+#     xl:
+#       minH: 3
+#       minW: 3
+#       h: 3
+#       w: 5
+#       y: 0
+#       x: 14
+#     lg:
+#       minH: 3
+#       minW: 3
+#       h: 3
+#       w: 5
+#       y: 4
+#       x: 0
+#     md:
+#       minH: 3
+#       minW: 3
+#       h: 3
+#       w: 6
+#       y: 3
+#       x: 0
+#     sm:
+#       minH: 3
+#       minW: 3
+#       h: 3
+#       w: 6
+#       y: 3
+#       x: 0
+# - type: terms
+#   showinput: false
+#   scale: linear
+#   quantity: data.storage_location#nomad_ikz_fz.schema_packages.mypackage.Feed_rod
+#   layout:
+#     xxl:
+#       minH: 3
+#       minW: 3
+#       h: 9
+#       w: 5
+#       y: 0
+#       x: 18
+#     xl:
+#       minH: 3
+#       minW: 3
+#       h: 6
+#       w: 6
+#       y: 0
+#       x: 19
+#     lg:
+#       minH: 3
+#       minW: 3
+#       h: 7
+#       w: 5
+#       y: 0
+#       x: 16
+#     md:
+#       minH: 3
+#       minW: 3
+#       h: 6
+#       w: 6
+#       y: 0
+#       x: 12
+#     sm:
+#       minH: 3
+#       minW: 3
+#       h: 6
+#       w: 6
+#       y: 3
+#       x: 6
+# - type: terms
+#   showinput: false
+#   scale: linear
+#   quantity: data.feed_rod_resistivity#nomad_ikz_fz.schema_packages.mypackage.Feed_rod
+#   layout:
+#     xxl:
+#       minH: 3
+#       minW: 3
+#       h: 3
+#       w: 7
+#       y: 6
+#       x: 11
+#     xl:
+#       minH: 3
+#       minW: 3
+#       h: 3
+#       w: 6
+#       y: 3
+#       x: 8
+#     lg:
+#       minH: 3
+#       minW: 3
+#       h: 3
+#       w: 6
+#       y: 4
+#       x: 5
+#     md:
+#       minH: 3
+#       minW: 3
+#       h: 3
+#       w: 6
+#       y: 0
+#       x: 0
+#     sm:
+#       minH: 3
+#       minW: 3
+#       h: 3
+#       w: 6
+#       y: 0
+#       x: 6
 
 
-                """
-            )
-        },
+#                 """
+#             )
+#        },
     ),
 )
 
