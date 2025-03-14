@@ -436,7 +436,7 @@ fzcrysapp = AppEntryPoint(
         label='FzCrystalApp',
         path='fzcrysapp',
         category='Fz Crystal Growth',
-        pagination={'page_size': 100},
+        # pagination={'page_size': 100},
         columns=Columns(
             selected=[
                 'data.name#nomad_ikz_fz.schema_packages.mypackage.FzCrystal',
@@ -474,15 +474,15 @@ fzcrysapp = AppEntryPoint(
                 'last_processing_time': Column(),
             },
         ),
-        filter_menus=FilterMenus(
-            options={
-                'material': FilterMenu(label='Material'),
-                'eln': FilterMenu(label='Electronic Lab Notebook'),
-                'custom_quantities': FilterMenu(label='User Defined Quantities'),
-                'author': FilterMenu(label='Author / Origin / Dataset'),
-                'metadata': FilterMenu(label='Visibility / IDs / Schema'),
-            }
-        ),
+        # filter_menus=FilterMenus(
+        #     options={
+        #         'material': FilterMenu(label='Material'),
+        #         'eln': FilterMenu(label='Electronic Lab Notebook'),
+        #         'custom_quantities': FilterMenu(label='User Defined Quantities'),
+        #         'author': FilterMenu(label='Author / Origin / Dataset'),
+        #         'metadata': FilterMenu(label='Visibility / IDs / Schema'),
+        #     }
+        # ),
         filters=Filters(
             include=['*#nomad_ikz_fz.schema_packages.mypackage.FzCrystal'],
         ),
@@ -491,265 +491,311 @@ fzcrysapp = AppEntryPoint(
                 'nomad_ikz_fz.schema_packages.mypackage.FzCrystal'
             ],
         },
+        menu=Menu(
+            title='Fz Crystals',
+            items=[
+                MenuItemTerms(
+                    search_quantity='data.fz_furnace#nomad_ikz_fz.schema_packages.mypackage.FzCrystal',
+                    width=12,
+                    options=6,
+                    show_input=False,
+                ),
+                MenuItemTerms(
+                    search_quantity='data.doping_type#nomad_ikz_fz.schema_packages.mypackage.FzCrystal',
+                    width=12,
+                    options=5,
+                    show_input=False,
+                ),
+                MenuItemTerms(
+                    search_quantity='data.orientation#nomad_ikz_fz.schema_packages.mypackage.FzCrystal',
+                    width=12,
+                    options=2,
+                    show_input=False,
+                ),
+                MenuItemHistogram(
+                    x='data.length#nomad_ikz_fz.schema_packages.mypackage.FzCrystal',
+                    width=12,
+                ),
+                MenuItemHistogram(
+                    x='data.diameter#nomad_ikz_fz.schema_packages.mypackage.FzCrystal',
+                    width=12,
+                ),
+                MenuItemHistogram(
+                    x='data.resistivity_measurement.resistivity#nomad_ikz_fz.schema_packages.mypackage.FzCrystal',
+                    width=12,
+                ),
+                MenuItemTerms(
+                    search_quantity='data.status#nomad_ikz_fz.schema_packages.mypackage.FzCrystal',
+                    width=12,
+                    options=10,
+                    show_input=False,
+                ),
+                MenuItemHistogram(
+                    x='data.process_date#nomad_ikz_fz.schema_packages.mypackage.FzCrystal',
+                    width=12,
+                ),
+                       ]
+        ),
         dashboard={
             'widgets': yaml.safe_load(
-                """
-- type: terms
-  showinput: false
-  scale: linear
-  quantity: data.fz_furnace#nomad_ikz_fz.schema_packages.mypackage.FzCrystal
-  layout:
-    xxl:
-      minH: 3
-      minW: 3
-      h: 7
-      w: 6
-      y: 0
-      x: 0
-    xl:
-      minH: 3
-      minW: 3
-      h: 7
-      w: 4
-      y: 0
-      x: 0
-    lg:
-      minH: 3
-      minW: 3
-      h: 7
-      w: 4
-      y: 0
-      x: 0
-    md:
-      minH: 3
-      minW: 3
-      h: 6
-      w: 4
-      y: 0
-      x: 0
-    sm:
-      minH: 3
-      minW: 3
-      h: 7
-      w: 6
-      y: 0
-      x: 0
-- type: terms
-  showinput: false
-  scale: linear
-  quantity: data.doping_type#nomad_ikz_fz.schema_packages.mypackage.FzCrystal
-  layout:
-    xxl:
-      minH: 3
-      minW: 3
-      h: 4
-      w: 6
-      y: 3
-      x: 12
-    xl:
-      minH: 3
-      minW: 3
-      h: 4
-      w: 4
-      y: 3
-      x: 8
-    lg:
-      minH: 3
-      minW: 3
-      h: 4
-      w: 4
-      y: 0
-      x: 8
-    md:
-      minH: 3
-      minW: 3
-      h: 3
-      w: 4
-      y: 6
-      x: 0
-    sm:
-      minH: 3
-      minW: 3
-      h: 4
-      w: 6
-      y: 7
-      x: 0
-- type: terms
-  showinput: false
-  scale: linear
-  quantity: data.orientation#nomad_ikz_fz.schema_packages.mypackage.FzCrystal
-  title: ""
-  layout:
-    xxl:
-      minH: 3
-      minW: 3
-      h: 7
-      w: 6
-      y: 0
-      x: 6
-    xl:
-      minH: 3
-      minW: 3
-      h: 7
-      w: 4
-      y: 0
-      x: 4
-    lg:
-      minH: 3
-      minW: 3
-      h: 7
-      w: 4
-      y: 0
-      x: 4
-    md:
-      minH: 3
-      minW: 3
-      h: 6
-      w: 4
-      y: 0
-      x: 4
-    sm:
-      minH: 3
-      minW: 3
-      h: 7
-      w: 6
-      y: 0
-      x: 6
-- type: histogram
-  showinput: true
-  autorange: false
-  nbins: 30
-  scale: linear
-  x:
-    unit: mm
-    quantity: data.length#nomad_ikz_fz.schema_packages.mypackage.FzCrystal
-  title: Crystal Length
-  layout:
-    xxl:
-      minH: 3
-      minW: 3
-      h: 4
-      w: 9
-      y: 7
-      x: 9
-    xl:
-      minH: 3
-      minW: 3
-      h: 5
-      w: 7
-      y: 7
-      x: 8
-    lg:
-      minH: 3
-      minW: 3
-      h: 4
-      w: 5
-      y: 7
-      x: 7
-    md:
-      minH: 3
-      minW: 3
-      h: 3
-      w: 5
-      y: 3
-      x: 8
-    sm:
-      minH: 3
-      minW: 3
-      h: 4
-      w: 6
-      y: 15
-      x: 0
-- type: histogram
-  showinput: true
-  autorange: false
-  nbins: 30
-  scale: linear
-  x:
-    unit: mm
-    quantity: data.diameter#nomad_ikz_fz.schema_packages.mypackage.FzCrystal
-  title: Feed Diameter
-  layout:
-    xxl:
-      minH: 3
-      minW: 3
-      h: 4
-      w: 9
-      y: 7
-      x: 18
-    xl:
-      minH: 3
-      minW: 3
-      h: 5
-      w: 7
-      y: 7
-      x: 15
-    lg:
-      minH: 3
-      minW: 3
-      h: 4
-      w: 6
-      y: 7
-      x: 12
-    md:
-      minH: 3
-      minW: 3
-      h: 3
-      w: 5
-      y: 3
-      x: 13
-    sm:
-      minH: 3
-      minW: 3
-      h: 4
-      w: 6
-      y: 15
-      x: 6
-- type: histogram
-  showinput: true
-  autorange: false
-  nbins: 30
-  scale: 1/2
-  x:
-    unit: kohm cm
-    quantity: data.resistivity_measurement.resistivity#nomad_ikz_fz.schema_packages.mypackage.FzCrystal
-  title: Resistivity
-  layout:
-    xxl:
-      minH: 3
-      minW: 3
-      h: 4
-      w: 9
-      y: 7
-      x: 27
-    xl:
-      minH: 3
-      minW: 3
-      h: 5
-      w: 8
-      y: 7
-      x: 22
-    lg:
-      minH: 3
-      minW: 3
-      h: 4
-      w: 6
-      y: 7
-      x: 18
-    md:
-      minH: 3
-      minW: 3
-      h: 3
-      w: 5
-      y: 0
-      x: 13
-    sm:
-      minH: 3
-      minW: 3
-      h: 4
-      w: 12
-      y: 11
-      x: 0
+                # """
+# - type: terms
+#   showinput: false
+#   scale: linear
+#   quantity: data.fz_furnace#nomad_ikz_fz.schema_packages.mypackage.FzCrystal
+#   layout:
+#     xxl:
+#       minH: 3
+#       minW: 3
+#       h: 7
+#       w: 6
+#       y: 0
+#       x: 0
+#     xl:
+#       minH: 3
+#       minW: 3
+#       h: 7
+#       w: 4
+#       y: 0
+#       x: 0
+#     lg:
+#       minH: 3
+#       minW: 3
+#       h: 7
+#       w: 4
+#       y: 0
+#       x: 0
+#     md:
+#       minH: 3
+#       minW: 3
+#       h: 6
+#       w: 4
+#       y: 0
+#       x: 0
+#     sm:
+#       minH: 3
+#       minW: 3
+#       h: 7
+#       w: 6
+#       y: 0
+#       x: 0
+# - type: terms
+#   showinput: false
+#   scale: linear
+#   quantity: data.doping_type#nomad_ikz_fz.schema_packages.mypackage.FzCrystal
+#   layout:
+#     xxl:
+#       minH: 3
+#       minW: 3
+#       h: 4
+#       w: 6
+#       y: 3
+#       x: 12
+#     xl:
+#       minH: 3
+#       minW: 3
+#       h: 4
+#       w: 4
+#       y: 3
+#       x: 8
+#     lg:
+#       minH: 3
+#       minW: 3
+#       h: 4
+#       w: 4
+#       y: 0
+#       x: 8
+#     md:
+#       minH: 3
+#       minW: 3
+#       h: 3
+#       w: 4
+#       y: 6
+#       x: 0
+#     sm:
+#       minH: 3
+#       minW: 3
+#       h: 4
+#       w: 6
+#       y: 7
+#       x: 0
+# - type: terms
+#   showinput: false
+#   scale: linear
+#   quantity: data.orientation#nomad_ikz_fz.schema_packages.mypackage.FzCrystal
+#   title: ""
+#   layout:
+#     xxl:
+#       minH: 3
+#       minW: 3
+#       h: 7
+#       w: 6
+#       y: 0
+#       x: 6
+#     xl:
+#       minH: 3
+#       minW: 3
+#       h: 7
+#       w: 4
+#       y: 0
+#       x: 4
+#     lg:
+#       minH: 3
+#       minW: 3
+#       h: 7
+#       w: 4
+#       y: 0
+#       x: 4
+#     md:
+#       minH: 3
+#       minW: 3
+#       h: 6
+#       w: 4
+#       y: 0
+#       x: 4
+#     sm:
+#       minH: 3
+#       minW: 3
+#       h: 7
+#       w: 6
+#       y: 0
+#       x: 6
+# - type: histogram
+#   showinput: true
+#   autorange: false
+#   nbins: 30
+#   scale: linear
+#   x:
+#     unit: mm
+#     quantity: data.length#nomad_ikz_fz.schema_packages.mypackage.FzCrystal
+#   title: Crystal Length
+#   layout:
+#     xxl:
+#       minH: 3
+#       minW: 3
+#       h: 4
+#       w: 9
+#       y: 7
+#       x: 9
+#     xl:
+#       minH: 3
+#       minW: 3
+#       h: 5
+#       w: 7
+#       y: 7
+#       x: 8
+#     lg:
+#       minH: 3
+#       minW: 3
+#       h: 4
+#       w: 5
+#       y: 7
+#       x: 7
+#     md:
+#       minH: 3
+#       minW: 3
+#       h: 3
+#       w: 5
+#       y: 3
+#       x: 8
+#     sm:
+#       minH: 3
+#       minW: 3
+#       h: 4
+#       w: 6
+#       y: 15
+#       x: 0
+# - type: histogram
+#   showinput: true
+#   autorange: false
+#   nbins: 30
+#   scale: linear
+#   x:
+#     unit: mm
+#     quantity: data.diameter#nomad_ikz_fz.schema_packages.mypackage.FzCrystal
+#   title: Feed Diameter
+#   layout:
+#     xxl:
+#       minH: 3
+#       minW: 3
+#       h: 4
+#       w: 9
+#       y: 7
+#       x: 18
+#     xl:
+#       minH: 3
+#       minW: 3
+#       h: 5
+#       w: 7
+#       y: 7
+#       x: 15
+#     lg:
+#       minH: 3
+#       minW: 3
+#       h: 4
+#       w: 6
+#       y: 7
+#       x: 12
+#     md:
+#       minH: 3
+#       minW: 3
+#       h: 3
+#       w: 5
+#       y: 3
+#       x: 13
+#     sm:
+#       minH: 3
+#       minW: 3
+#       h: 4
+#       w: 6
+#       y: 15
+#       x: 6
+# - type: histogram
+#   showinput: true
+#   autorange: false
+#   nbins: 30
+#   scale: 1/2
+#   x:
+#     unit: kohm cm
+#     quantity: data.resistivity_measurement.resistivity#nomad_ikz_fz.schema_packages.mypackage.FzCrystal
+#   title: Resistivity
+#   layout:
+#     xxl:
+#       minH: 3
+#       minW: 3
+#       h: 4
+#       w: 9
+#       y: 7
+#       x: 27
+#     xl:
+#       minH: 3
+#       minW: 3
+#       h: 5
+#       w: 8
+#       y: 7
+#       x: 22
+#     lg:
+#       minH: 3
+#       minW: 3
+#       h: 4
+#       w: 6
+#       y: 7
+#       x: 18
+#     md:
+#       minH: 3
+#       minW: 3
+#       h: 3
+#       w: 5
+#       y: 0
+#       x: 13
+#     sm:
+#       minH: 3
+#       minW: 3
+#       h: 4
+#       w: 12
+#       y: 11
+#       x: 0
+'''
 - type: scatterplot
   autorange: true
   size: 1000
@@ -799,95 +845,96 @@ fzcrysapp = AppEntryPoint(
       w: 12
       y: 19
       x: 0
-- type: terms
-  showinput: false
-  scale: linear
-  quantity: data.status#nomad_ikz_fz.schema_packages.mypackage.FzCrystal
-  layout:
-    xxl:
-      minH: 3
-      minW: 3
-      h: 3
-      w: 6
-      y: 0
-      x: 12
-    xl:
-      minH: 3
-      minW: 3
-      h: 3
-      w: 4
-      y: 0
-      x: 8
-    lg:
-      minH: 3
-      minW: 3
-      h: 3
-      w: 4
-      y: 4
-      x: 8
-    md:
-      minH: 3
-      minW: 3
-      h: 3
-      w: 4
-      y: 6
-      x: 4
-    sm:
-      minH: 3
-      minW: 3
-      h: 4
-      w: 6
-      y: 7
-      x: 6
-- type: histogram
-  showinput: true
-  autorange: false
-  nbins: 30
-  scale: linear
-  x:
-    quantity: data.process_date#nomad_ikz_fz.schema_packages.mypackage.FzCrystal
-  title: Process Date
-  layout:
-    xxl:
-      minH: 3
-      minW: 3
-      h: 4
-      w: 9
-      y: 7
-      x: 0
-    xl:
-      minH: 3
-      minW: 3
-      h: 5
-      w: 8
-      y: 7
-      x: 0
-    lg:
-      minH: 3
-      minW: 3
-      h: 4
-      w: 7
-      y: 7
-      x: 0
-    md:
-      minH: 3
-      minW: 3
-      h: 3
-      w: 5
-      y: 0
-      x: 8
-    sm:
-      minH: 3
-      minW: 3
-      h: 3
-      w: 8
-      y: 26
-      x: 0
+      '''
+# - type: terms
+#   showinput: false
+#   scale: linear
+#   quantity: data.status#nomad_ikz_fz.schema_packages.mypackage.FzCrystal
+#   layout:
+#     xxl:
+#       minH: 3
+#       minW: 3
+#       h: 3
+#       w: 6
+#       y: 0
+#       x: 12
+#     xl:
+#       minH: 3
+#       minW: 3
+#       h: 3
+#       w: 4
+#       y: 0
+#       x: 8
+#     lg:
+#       minH: 3
+#       minW: 3
+#       h: 3
+#       w: 4
+#       y: 4
+#       x: 8
+#     md:
+#       minH: 3
+#       minW: 3
+#       h: 3
+#       w: 4
+#       y: 6
+#       x: 4
+#     sm:
+#       minH: 3
+#       minW: 3
+#       h: 4
+#       w: 6
+#       y: 7
+#       x: 6
+# - type: histogram
+#   showinput: true
+#   autorange: false
+#   nbins: 30
+#   scale: linear
+#   x:
+#     quantity: data.process_date#nomad_ikz_fz.schema_packages.mypackage.FzCrystal
+#   title: Process Date
+#   layout:
+#     xxl:
+#       minH: 3
+#       minW: 3
+#       h: 4
+#       w: 9
+#       y: 7
+#       x: 0
+#     xl:
+#       minH: 3
+#       minW: 3
+#       h: 5
+#       w: 8
+#       y: 7
+#       x: 0
+#     lg:
+#       minH: 3
+#       minW: 3
+#       h: 4
+#       w: 7
+#       y: 7
+#       x: 0
+#     md:
+#       minH: 3
+#       minW: 3
+#       h: 3
+#       w: 5
+#       y: 0
+#       x: 8
+#     sm:
+#       minH: 3
+#       minW: 3
+#       h: 3
+#       w: 8
+#       y: 26
+#       x: 0
 
-"""  # noqa: E501
-            )
-        },
-    ),
+# """  # noqa: E501
+             )
+         },
+     ),
 )
 
 fzinstrumentapp = AppEntryPoint(
