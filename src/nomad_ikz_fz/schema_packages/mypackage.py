@@ -978,6 +978,7 @@ class Feed_rod(FzMaterial, EntryData, ArchiveSection):  # FzMaterial
                     'supplier',
                     # 'furnace_type_compatibility',
                     'feed_rod_resistivity',
+                    'feed_rod_purity',
                     #'diameter',
                     'diameter_category',
                     'diameter_measured',
@@ -1139,6 +1140,11 @@ class Feed_rod(FzMaterial, EntryData, ArchiveSection):  # FzMaterial
         ),
         description='resistivity of the feed rod',
         a_eln={'component': 'EnumEditQuantity'},
+    )
+    feed_rod_purity = Quantity(
+        type=bool,
+        description='tick if rod is high purity',
+        a_eln={'component': 'BoolEditQuantity'},
     )
     # ready_to_use = Quantity(
     #    type=bool,
@@ -1856,7 +1862,7 @@ class DigitalProtocol1520(FzGrowthStep, EntryData, ArchiveSection):
     )
     power_actual = Quantity(
         type=np.float64,
-        description='P (P-Ist)',
+        description='P (P-Ist)', # Pa for 1505-1
         unit='kW',
         shape=['*'],
     )
@@ -2101,14 +2107,65 @@ class SeedMounted(CompositeSystemReference, ArchiveSection):
             self.seed_batch = self.reference.seed_batch
 class FeedStockPreparation(FzGrowthStep, ArchiveSection):
     
-    m_def = Section() #a_eln=dict(overview=True))
+    #m_def = Section(a_eln=dict(overview=True))
+    m_def = Section(
+        a_eln=ELNAnnotation(
+            properties=SectionProperties(
+                order=[
+                    'name',
+                    'start_time',
+                    'duration',
+                    'feed_rod_used',
+                    'seed_rod_mounted',
+                    'seed_orientation',
+                    'seed_batch',
+                    'comment',
+                ],
+            ),
+            overview=True,
+            hide=['duration'],
+        ),
+    )
     
-    feed_rod_reference =SubSection(
-        section_def=FeedRodReference,
+    feed_rod_used = Quantity(
+        type=Feed_rod,
+        a_eln={'component': 'ReferenceEditQuantity'},
     )
-    seed_rod_mounted = SubSection(
-        section_def=SeedMounted,
+    seed_rod_mounted = Quantity(
+        type=Seed,
+        a_eln={'component': 'ReferenceEditQuantity'},
     )
+    seed_orientation = Quantity(
+        type=str,
+        description='seed orientation',
+        a_eln={'component': 'StringEditQuantity'},
+    )
+    seed_batch = Quantity(
+        type=str,
+        description='seed batch',
+        a_eln={'component': 'StringEditQuantity'},
+    )
+    def normalize(self, archive: 'EntryArchive', logger: 'BoundLogger') -> None:
+        """
+        The normalizer for the `AssemblyStep` class.
+
+        Args:
+            archive (EntryArchive): The archive containing the section that is being
+            normalized.
+            logger (BoundLogger): A structlog logger.
+        """
+        super().normalize(archive, logger)
+        if self.seed_rod_mounted:
+            self.seed_orientation = self.seed_rod_mounted.orientation
+            self.seed_batch = self.seed_rod_mounted.seed_batch
+
+
+    # feed_rod_reference =SubSection(
+    #     section_def=FeedRodReference,
+    # )
+    # seed_rod_mounted = SubSection(
+    #     section_def=SeedMounted,
+    # )
 
     # feed_rod_reference = Quantity(
     #     type=Feed_rod,
@@ -2142,7 +2199,23 @@ class FeedStockPreparation(FzGrowthStep, ArchiveSection):
     #         self.seed_orientation = self.seed_rod_mounted.orientation
     #         self.seed_batch = self.seed_rod_mounted.seed_batch
 class AssemblyStep(FzGrowthStep, PlotSection, ArchiveSection):
-    m_def = Section(a_eln=dict(overview=True))
+    m_def = Section(
+        a_eln=ELNAnnotation(
+            properties=SectionProperties(
+                order=[
+                    'name',
+                    'start_time',
+                    'based_on_process',
+                    'load_assembly',
+                    'assembly',
+                    'comment',
+                ],
+            ),
+            overview=True,
+            hide=['duration'],
+        ),
+    )
+    
     name = Quantity(
         type=str,
         description=' ',
@@ -2236,6 +2309,208 @@ class AssemblyStep(FzGrowthStep, PlotSection, ArchiveSection):
         
 #     )
 # )
+class Dopant(FzGrowthStep, ArchiveSection):
+    m_def = Section(
+        a_eln=ELNAnnotation(
+            properties=SectionProperties(
+                order=[
+                    'name',
+                    'start_time',
+                    'doping_substance',
+                    'concentration',
+                    'comment',
+                ],
+            ),
+            overview=True,
+            hide=['duration'],
+        ),
+    )
+    
+    doping_substance = Quantity(
+        type=MEnum(['PH3', 'B2H6']),
+        description='name/type of dopant',
+        a_eln={'component': 'EnumEditQuantity'},
+    )
+    concentration = Quantity(
+        type=np.float64,
+        description='concentration of dopant in ppm',
+        a_eln={'component': 'NumberEditQuantity'},
+    )
+
+class VacuumTest(FzGrowthStep, ArchiveSection):
+    m_def = Section(
+        a_eln=ELNAnnotation(
+            properties=SectionProperties(
+                order=[
+                    'name',
+                    'start_time',
+                    'end_time',
+                    'pressure',
+                    'furnace_leak_rate',
+                    'comment',
+                ],
+            ),
+            overview=True,
+            hide=['duration'],
+        ),
+    )
+    
+    end_time = Quantity(
+        type=Datetime,
+        description='end time of the vacuum test',
+        a_eln={'component': 'DateTimeEditQuantity'},
+    )
+    pressure = Quantity(
+        type=np.float64,
+        unit='mbar',
+        description='pressure value that has been reach during the vacuum test',
+        a_eln={'component': 'NumberEditQuantity', 'defaultDisplayUnit':'mbar'},
+    )
+    furnace_leak_rate = Quantity(
+        type=MEnum(['good', 'bad']),
+        description='furnace leak rate',
+        a_eln={'component': 'EnumEditQuantity'},
+    )
+class GasFilling(FzGrowthStep, ArchiveSection):
+    m_def = Section(
+        a_eln=ELNAnnotation(
+            properties=SectionProperties(
+                order=[
+                    'name',
+                    'start_time',
+                    'Ar_flow_rate',
+                    'N2_ratio',
+                    'pressure',
+                    'comment',
+                ],
+            ),
+            overview=True,
+            hide=['duration'],
+        ),
+    )
+    
+    Ar_flow_rate = Quantity(
+        type=np.float64,
+        unit='l/min',
+        description='Argon flow rate',
+        a_eln={'component': 'NumberEditQuantity', 'defaultDisplayUnit':'l/min'},
+    )
+    N2_ratio = Quantity(
+        type=np.float64,
+        description='N2 ratio in the gas mixture in %',
+        a_eln={'component': 'NumberEditQuantity'},
+    )
+    pressure = Quantity(
+        type=np.float64,
+        unit='bar',
+        description='pressure value that has been reach during the gas filling',
+        a_eln={'component': 'NumberEditQuantity', 'defaultDisplayUnit':'bar'},
+    )
+    
+class FiberProcess(FzGrowthStep, ArchiveSection):
+    m_def = Section(
+        a_eln=ELNAnnotation(
+            properties=SectionProperties(
+                order=[
+                    'name',
+                    'start_time',
+                    'preheating_start_time',
+                    'preheating_voltage',
+                    'preheating_power',
+                    'preheating_position_upper_spindle',
+                    'preheating_end_time',
+                    'drop_time',
+                    'preheating_seed_start_time',
+                    'preheating_seed_voltage',
+                    'seeding_timestamp',
+                    'growing_timestamp',
+                    'end_process_timestamp',
+                    'comment',
+                ],
+            ),
+            overview=True,
+            hide=['duration'],
+        ),
+    )
+    
+    preheating_start_time = Quantity(
+        type=Datetime,
+        description='start time of the preheating',
+        a_eln={'component': 'DateTimeEditQuantity'},
+    )
+    preheating_voltage = Quantity(
+        type=np.float64,
+        unit='kV',
+        description='voltage during the preheating',
+        a_eln={'component': 'NumberEditQuantity', 'defaultDisplayUnit':'kV'},
+    )
+    preheating_power = Quantity(
+        type=np.float64,
+        unit='kW',
+        description='power during the preheating',
+        a_eln={'component': 'NumberEditQuantity', 'defaultDisplayUnit':'kW'},
+    )
+    preheating_position_upper_spindle = Quantity(
+        type=np.float64,
+        unit='mm',
+        description='position of the upper spindle during the preheating',
+        a_eln={'component': 'NumberEditQuantity', 'defaultDisplayUnit':'mm'},
+    )
+    preheating_end_time = Quantity(
+        type=Datetime,
+        description='end time of the preheating',
+        a_eln={'component': 'DateTimeEditQuantity'},
+    )
+    drop_time = Quantity(
+        type=Datetime,
+        description='time when the drop is formed',
+        a_eln={'component': 'DateTimeEditQuantity'},
+    )
+    preheating_seed_start_time = Quantity(
+        type=Datetime,
+        description='start time of the preheating seed',
+        a_eln={'component': 'DateTimeEditQuantity'},
+    )
+    preheating_seed_voltage = Quantity(
+        type=np.float64,
+        unit='kV',
+        description='voltage during the preheating seed',
+        a_eln={'component': 'NumberEditQuantity', 'defaultDisplayUnit':'kV'},
+    )
+    seeding_timestamp = Quantity(
+        type=Datetime,
+        description='timestamp of the seeding',
+        a_eln={'component': 'DateTimeEditQuantity'},
+    )
+    growing_timestamp = Quantity(
+        type=Datetime,
+        description='timestamp of the growing',
+        a_eln={'component': 'DateTimeEditQuantity'},
+    )
+    end_process_timestamp = Quantity(
+        type=Datetime,
+        description='timestamp of the end of the process',
+        a_eln={'component': 'DateTimeEditQuantity'},
+    )
+    
+    # preheating = SubSection(
+    #     section_def=Preheating,
+    # )
+    # drop = SubSection(
+    #     section_def=Drop,
+    # )
+    # preheating_seed = SubSection(
+    #     section_def=PreheatingSeed,
+    # )
+    # seeding = SubSection(
+    #     section_def=Seeding,
+    # )
+    # growing = SubSection(
+    #     section_def=Growing,
+    # )
+    # end_process = SubSection(
+    #     section_def=EndProcess,
+    # )
 class FzGrowthProcess(Process, Schema): #EntryData, ArchiveSection):
     """
     Class autogenerated from yaml schema.
@@ -2243,6 +2518,9 @@ class FzGrowthProcess(Process, Schema): #EntryData, ArchiveSection):
     m_def = Section(
         categories=[IKZFZCategory],
         label='Fz Growth Process',
+        a_eln=ELNAnnotation(
+            hide=["fzmaterials", "steps", "instruments"],
+        )
     )
     instruments = SubSection(
         section_def=FzInstrumentReference,
@@ -2259,6 +2537,23 @@ class FzGrowthProcess(Process, Schema): #EntryData, ArchiveSection):
         a_eln={'component': 'StringEditQuantity',
                'label': 'Experiment No.'},
     )
+    objective = Quantity(
+        type=str,
+        description='objective of the process',
+        a_eln={'component': 'StringEditQuantity'},
+    )
+    resistivity_target = Quantity(
+        type=np.float64,
+        description='target resistivity',
+        a_eln={'component': 'NumberEditQuantity', 'defaultDisplayUnit': 'ohm cm'},
+        unit='ohm cm',
+    )
+    diameter_target = Quantity(
+        type=np.float64,
+        description='target diameter',
+        a_eln={'component': 'NumberEditQuantity', 'defaultDisplayUnit': 'mm'},
+        unit='mm',
+    )
     fzmaterials = SubSection(
         section_def=Fz_Materials,
         repeats=True,
@@ -2269,6 +2564,18 @@ class FzGrowthProcess(Process, Schema): #EntryData, ArchiveSection):
     )
     feed_stock_preparation = SubSection(
         section_def=FeedStockPreparation)
+    doping_setup = SubSection(
+        section_def=Dopant,
+    )
+    vacuum_test = SubSection(
+        section_def=VacuumTest,
+    )
+    gas_filling = SubSection(
+        section_def=GasFilling,
+    )
+    fiber_process = SubSection(
+        section_def=FiberProcess,
+    )
     steps = SubSection(
         section_def=FzGrowthStep,
         repeats=True,
@@ -2331,19 +2638,27 @@ class FzGrowthProcess(Process, Schema): #EntryData, ArchiveSection):
         fzfeedstock=[]
         if self.feed_stock_preparation is None:
             self.feed_stock_preparation = FeedStockPreparation()
-            self.feed_stock_preparation.feed_rod_reference = FeedRodReference()
-            self.feed_stock_preparation.seed_rod_mounted = SeedMounted()
+        if self.doping_setup is None:
+            self.doping_setup = Dopant()
+        if self.vacuum_test is None:
+            self.vacuum_test = VacuumTest()
+        if self.gas_filling is None:
+            self.gas_filling = GasFilling()
+        if self.fiber_process is None:
+            self.fiber_process = FiberProcess()
+        #     self.feed_stock_preparation.feed_rod_reference = FeedRodReference()
+        #     self.feed_stock_preparation.seed_rod_mounted = SeedMounted()
 
-        if self.feed_stock_preparation:
-            if (
-                self.feed_stock_preparation.feed_rod_reference and 
-                self.feed_stock_preparation.seed_rod_mounted
-            ):
-                fzfeedstock.append(self.feed_stock_preparation.feed_rod_reference)
-                #elif self.feed_stock_preparation.seed_rod_mounted:
-                fzfeedstock.append(self.feed_stock_preparation.seed_rod_mounted)  
+        # if self.feed_stock_preparation:
+        #     if (
+        #         self.feed_stock_preparation.feed_rod_reference and 
+        #         self.feed_stock_preparation.seed_rod_mounted
+        #     ):
+        #         fzfeedstock.append(self.feed_stock_preparation.feed_rod_reference)
+        #         #elif self.feed_stock_preparation.seed_rod_mounted:
+        #         fzfeedstock.append(self.feed_stock_preparation.seed_rod_mounted)  
             
-        self.fzmaterials=fzfeedstock
+        # self.fzmaterials=fzfeedstock
 
 
 

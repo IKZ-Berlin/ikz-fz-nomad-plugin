@@ -153,6 +153,12 @@ myapp = AppEntryPoint(
                     options=2,
                     show_input=False,
                 ),
+                MenuItemTerms(
+                    search_quantity='data.feed_rod_purity#nomad_ikz_fz.schema_packages.mypackage.Feed_rod',
+                    width=12,
+                    options=1,
+                    show_input=False,
+                ),
                 MenuItemHistogram(
                     x='data.length#nomad_ikz_fz.schema_packages.mypackage.Feed_rod',
                     width=12,
