@@ -8,7 +8,11 @@ if TYPE_CHECKING:
         BoundLogger,
     )
 import numpy as np
+import datetime
+from datetime import datetime, timedelta
+from nomad_ikz_fz.schema_packages.utils import time_str_to_seconds, time_to_seconds, create_archive
 import pandas as pd
+from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 from nomad.config import config
 from nomad.datamodel.data import ArchiveSection, EntryData, EntryDataCategory, Schema
@@ -2021,14 +2025,13 @@ class DigitalProtocol1520(FzGrowthStep, EntryData, ArchiveSection):
                 # self.measurment_no = df_process['0']
                 df_process['datum'] = pd.to_datetime(
                     df_process['date'] + ' ' + df_process['time'],
-                    format='%y.%m.%d %H:%M:%S',
+                    format='%d.%m.%y %H:%M:%S',
                 )
                 # df_process['datum'] = df_process['datum'].dt.strftime(
                 #     '%Y-%m-%dT%H:%M:%S%z'
                 # )
-                self.timestamp = pd.to_datetime(
-                    df_process['datum']
-                ).to_list()  # .values[0]
+                self.timestamp = df_process['datum'].values
+                
                 self.upper_position_rod = df_process['upper_position_rod']
                 self.upper_pull_speed_rod = df_process['upper_pull_speed_rod']
                 self.upper_rotation_rod = df_process['upper_rotation_rod']
@@ -2406,25 +2409,151 @@ class GasFilling(FzGrowthStep, ArchiveSection):
         description='pressure value that has been reach during the gas filling',
         a_eln={'component': 'NumberEditQuantity', 'defaultDisplayUnit':'bar'},
     )
+class FiberProcessStep(ProcessStep, ArchiveSection):
+    m_def = Section(
+        a_eln=ELNAnnotation(
+            overview=True,
+            hide=['duration'],
+        ),
+    )
+    elapsed_time = Quantity(
+        type=str, #np.float64,
+        description='elapsed time',
+        #unit='s',
+     )
+    step_type = Quantity(
+        type=MEnum(
+            # process start, preheating start, preheating end, drop, preheating seed start, seeding start, growing start, growing end, end process, "obervation free defined"
+            ['process start', 'preheating start', 'preheating end', 
+            'drop', 'preheating seed start', 'seeding start',
+            'growing start', 'growing end', 'end process', 'observation']
+        ),
+        description='type of the step',
+        a_eln={'component': 'EnumEditQuantity'},
+    )
+    def normalize(self, archive: 'EntryArchive', logger: 'BoundLogger') -> None:
+        """
+        The normalizer for the `FiberProcessStep` class.
+
+        Args:
+            archive (EntryArchive): The archive containing the section that is being
+            normalized.
+            logger (BoundLogger): A structlog logger.
+        """
+        super().normalize(archive, logger)
+        if self.step_type:
+            self.name = self.step_type
+        
+
+class ProcessLog(EntryData, ArchiveSection):
+    m_def = Section()
+    # "Datetime", "upper_position_rod", "upper_pull_speed_rod", "upper_rotation_rod",
+    # "lower_position_crystal", "lower_pull_speed_crystal", "lower_rotation_crystal",
+    # "voltage_set", "power_actual", "current_actual", "voltage_actual", "grid_current",
+    # "frequency_setpoint", "frequency_actual"
+    timestamp = Quantity(
+        type=Datetime,
+        description='timestamp of the log entry',
+        shape = ['*'],
+    )
+    elapsed_time = Quantity(
+        type=np.float64,
+        description='elapsed time',
+        unit='s',
+        shape = ['*'],
+    )
+    upper_position_rod = Quantity(
+        type=np.float64,
+        description='upper position of the rod',
+        unit='mm',
+        shape = ['*'],
+    )
+    upper_pull_speed_rod = Quantity(
+        type=np.float64,
+        description='upper pull speed of the rod',
+        unit='mm/min',
+        shape = ['*'],
+    )
+    upper_rotation_rod = Quantity(
+        type=np.float64,
+        description='upper rotation of the rod',
+        unit='1/min',
+        shape = ['*'],
+    )
+    lower_position_crystal = Quantity(
+        type=np.float64,
+        description='lower position of the crystal',
+        unit='mm',
+        shape = ['*'],
+    )
+    lower_pull_speed_crystal = Quantity(
+        type=np.float64,
+        description='lower pull speed of the crystal',
+        unit='mm/min',
+        shape = ['*'],
+    )
+    lower_rotation_crystal = Quantity(
+        type=np.float64,
+        description='lower rotation of the crystal',
+        unit='1/min',
+        shape = ['*'],
+    )
+    voltage_set = Quantity(
+        type=np.float64,
+        description='voltage set',
+        unit='kV',
+        shape = ['*'],
+    )
+    power_actual = Quantity(
+        type=np.float64,
+        description='actual power',
+        unit='kW',
+        shape = ['*'],
+    )
+    current_actual = Quantity(
+        type=np.float64,
+        description='actual current',
+        unit='A',
+        shape = ['*'],
+    )
+    voltage_actual = Quantity(
+        type=np.float64,
+        description='actual voltage',
+        unit='kV',
+        shape = ['*'],
+    )
+    grid_current = Quantity(
+        type=np.float64,
+        description='grid current',
+        unit='A',
+        shape = ['*'],
+    )
+    frequency_setpoint = Quantity(
+        type=np.float64,
+        description='frequency setpoint',
+        unit='MHz',
+        shape = ['*'],
+    )
+    frequency_actual = Quantity(
+        type=np.float64,
+        description='actual frequency',
+        unit='MHz',
+        shape = ['*'],
+    )
     
-class FiberProcess(FzGrowthStep, ArchiveSection):
+
+        
+class FiberProcess(PlotSection, FzGrowthStep, ArchiveSection):
     m_def = Section(
         a_eln=ELNAnnotation(
             properties=SectionProperties(
                 order=[
                     'name',
                     'start_time',
-                    'preheating_start_time',
-                    'preheating_voltage',
-                    'preheating_power',
-                    'preheating_position_upper_spindle',
-                    'preheating_end_time',
-                    'drop_time',
-                    'preheating_seed_start_time',
-                    'preheating_seed_voltage',
-                    'seeding_timestamp',
-                    'growing_timestamp',
-                    'end_process_timestamp',
+                    'log_file',
+                    'start_time_log',
+                    'create_crystal',
+                    'add_step',
                     'comment',
                 ],
             ),
@@ -2433,66 +2562,322 @@ class FiberProcess(FzGrowthStep, ArchiveSection):
         ),
     )
     
-    preheating_start_time = Quantity(
+    # preheating_start_time = Quantity(
+    #     type=Datetime,
+    #     description='start time of the preheating',
+    #     a_eln={'component': 'DateTimeEditQuantity'},
+    # )
+    # preheating_voltage = Quantity(
+    #     type=np.float64,
+    #     unit='kV',
+    #     description='voltage during the preheating',
+    #     a_eln={'component': 'NumberEditQuantity', 'defaultDisplayUnit':'kV'},
+    # )
+    # preheating_power = Quantity(
+    #     type=np.float64,
+    #     unit='kW',
+    #     description='power during the preheating',
+    #     a_eln={'component': 'NumberEditQuantity', 'defaultDisplayUnit':'kW'},
+    # )
+    # preheating_position_upper_spindle = Quantity(
+    #     type=np.float64,
+    #     unit='mm',
+    #     description='position of the upper spindle during the preheating',
+    #     a_eln={'component': 'NumberEditQuantity', 'defaultDisplayUnit':'mm'},
+    # )
+    # preheating_end_time = Quantity(
+    #     type=Datetime,
+    #     description='end time of the preheating',
+    #     a_eln={'component': 'DateTimeEditQuantity'},
+    # )
+    # drop_time = Quantity(
+    #     type=Datetime,
+    #     description='time when the drop is formed',
+    #     a_eln={'component': 'DateTimeEditQuantity'},
+    # )
+    # preheating_seed_start_time = Quantity(
+    #     type=Datetime,
+    #     description='start time of the preheating seed',
+    #     a_eln={'component': 'DateTimeEditQuantity'},
+    # )
+    # preheating_seed_voltage = Quantity(
+    #     type=np.float64,
+    #     unit='kV',
+    #     description='voltage during the preheating seed',
+    #     a_eln={'component': 'NumberEditQuantity', 'defaultDisplayUnit':'kV'},
+    # )
+    # seeding_timestamp = Quantity(
+    #     type=Datetime,
+    #     description='timestamp of the seeding',
+    #     a_eln={'component': 'DateTimeEditQuantity'},
+    # )
+    # growing_timestamp = Quantity(
+    #     type=Datetime,
+    #     description='timestamp of the growing',
+    #     a_eln={'component': 'DateTimeEditQuantity'},
+    # )
+    # end_process_timestamp = Quantity(
+    #     type=Datetime,
+    #     description='timestamp of the end of the process',
+    #     a_eln={'component': 'DateTimeEditQuantity'},
+    # )
+    log_file = Quantity(
+        type=str,
+        description='log file of the fiber process',
+        a_browser={'adaptor': 'RawFileAdaptor'},
+        a_eln={'component': 'FileEditQuantity'},
+    )
+    add_step = Quantity(
+        type=bool, 
+        default=False, 
+        a_eln=dict(component='ActionEditQuantity')
+    )
+    start_time_log = Quantity(
         type=Datetime,
-        description='start time of the preheating',
         a_eln={'component': 'DateTimeEditQuantity'},
     )
-    preheating_voltage = Quantity(
-        type=np.float64,
-        unit='kV',
-        description='voltage during the preheating',
-        a_eln={'component': 'NumberEditQuantity', 'defaultDisplayUnit':'kV'},
+    create_crystal = Quantity(
+        type=bool,
+        default=False,
+        a_eln={'component': 'BoolEditQuantity'},
     )
-    preheating_power = Quantity(
-        type=np.float64,
-        unit='kW',
-        description='power during the preheating',
-        a_eln={'component': 'NumberEditQuantity', 'defaultDisplayUnit':'kW'},
+    fiber_process_steps = SubSection(
+        section_def=FiberProcessStep,
+        repeats=True,
     )
-    preheating_position_upper_spindle = Quantity(
-        type=np.float64,
-        unit='mm',
-        description='position of the upper spindle during the preheating',
-        a_eln={'component': 'NumberEditQuantity', 'defaultDisplayUnit':'mm'},
+    process_log = SubSection(
+        section_def=ProcessLog,
     )
-    preheating_end_time = Quantity(
-        type=Datetime,
-        description='end time of the preheating',
-        a_eln={'component': 'DateTimeEditQuantity'},
-    )
-    drop_time = Quantity(
-        type=Datetime,
-        description='time when the drop is formed',
-        a_eln={'component': 'DateTimeEditQuantity'},
-    )
-    preheating_seed_start_time = Quantity(
-        type=Datetime,
-        description='start time of the preheating seed',
-        a_eln={'component': 'DateTimeEditQuantity'},
-    )
-    preheating_seed_voltage = Quantity(
-        type=np.float64,
-        unit='kV',
-        description='voltage during the preheating seed',
-        a_eln={'component': 'NumberEditQuantity', 'defaultDisplayUnit':'kV'},
-    )
-    seeding_timestamp = Quantity(
-        type=Datetime,
-        description='timestamp of the seeding',
-        a_eln={'component': 'DateTimeEditQuantity'},
-    )
-    growing_timestamp = Quantity(
-        type=Datetime,
-        description='timestamp of the growing',
-        a_eln={'component': 'DateTimeEditQuantity'},
-    )
-    end_process_timestamp = Quantity(
-        type=Datetime,
-        description='timestamp of the end of the process',
-        a_eln={'component': 'DateTimeEditQuantity'},
-    )
-    
+    def normalize(self, archive: 'EntryArchive', logger: 'BoundLogger') -> None:
+        """
+        The normalizer for the `FiberProcess` class.
+
+        Args:
+            archive (EntryArchive): The archive containing the section that is being
+            normalized.
+            logger (BoundLogger): A structlog logger.
+        """
+        super().normalize(archive, logger)
+        if self.add_step:
+            self.fiber_process_steps.append(FiberProcessStep(
+                start_time= datetime.now()
+            ))
+            self.add_step = False
+        if self.log_file:
+            self.create_crystal = True
+            columns = [
+                "Datum", "Uhrzeit", "PosOben", "HubOben", "RotOben", "PosUnten", "HubUnten", "RotUnten",
+                "SollUa", "IstUa", "Ia", "Pa", "Ig", "f=Soll", "f-Ist", "SwGen2", "Ua2", "Ia2", "Pa2",
+                "Pos.Ind", "Pos.FS", "IstRüttl", "Waage", "Pyrom1", "Pyrom2", "ThElem1", "ThElem2",
+                "ThElem3", "ThElem4", "ThElem5", "ThElem6", "ThElem7", "ThElem8", "Analog 4", "Analog 5",
+                "Analog 6", "Analog 7", "Analog 8"
+            ]
+
+            with archive.m_context.raw_file(
+                self.log_file,
+                'r',
+                encoding='latin1',
+            ) as file:
+                df = pd.read_csv(
+                    file,
+                    sep=';', 
+                    decimal='.', 
+                    header=0, 
+                    encoding='latin1', 
+                    names=columns, 
+                    skiprows=1)
+                df['Datetime'] = pd.to_datetime(df['Datum'] + ' ' + df['Uhrzeit'], format='%d.%m.%y %H:%M:%S')
+
+                # Drop the original "Datum" and "Uhrzeit" columns
+                df.drop(columns=['Datum', 'Uhrzeit'], inplace=True)
+
+                # Rename the columns
+                df.rename(columns={
+                    "PosOben": "upper_position_rod",
+                    "HubOben": "upper_pull_speed_rod",
+                    "RotOben": "upper_rotation_rod",
+                    "PosUnten": "lower_position_crystal",
+                    "HubUnten": "lower_pull_speed_crystal",
+                    "RotUnten": "lower_rotation_crystal",
+                    "SollUa": "voltage_set",
+                    "Pa": "power_actual",
+                    "Ia": "current_actual",
+                    "IstUa": "voltage_actual",
+                    "Ig": "grid_current",
+                    "f=Soll": "frequency_setpoint",
+                    "f-Ist": "frequency_actual",
+                    
+                }, inplace=True)
+
+                # Calculate the elapsed time
+                df['Elapsed_Time'] = (df['Datetime'] - df['Datetime'].iloc[0]).dt.total_seconds()
+
+                # Keep only the required columns
+                df = df[[
+                    "Datetime", "Elapsed_Time", "upper_position_rod", "upper_pull_speed_rod", "upper_rotation_rod",
+                    "lower_position_crystal", "lower_pull_speed_crystal", "lower_rotation_crystal",
+                    "voltage_set", "power_actual", "current_actual", "voltage_actual", "grid_current",
+                    "frequency_setpoint", "frequency_actual"
+                ]]
+                self.start_time_log = df['Datetime'].iloc[0]
+                self.process_log = ProcessLog()
+                #self.process_log.timestamp = pd.to_datetime(df['Datetime']).to_list()
+                self.process_log.elapsed_time = df['Elapsed_Time']
+                self.process_log.upper_position_rod = df['upper_position_rod']
+                self.process_log.upper_pull_speed_rod = df['upper_pull_speed_rod']          
+                self.process_log.upper_rotation_rod = df['upper_rotation_rod']
+                self.process_log.lower_position_crystal = df['lower_position_crystal']
+                self.process_log.lower_pull_speed_crystal = df['lower_pull_speed_crystal']
+                self.process_log.lower_rotation_crystal = df['lower_rotation_crystal']
+                self.process_log.voltage_set = df['voltage_set']
+                self.process_log.power_actual = df['power_actual']
+                self.process_log.current_actual = df['current_actual']
+                self.process_log.voltage_actual = df['voltage_actual']
+                self.process_log.grid_current = df['grid_current']
+                self.process_log.frequency_setpoint = df['frequency_setpoint']
+                self.process_log.frequency_actual = df['frequency_actual']
+                self.process_log.normalize(archive, logger)
+
+                for step in self.fiber_process_steps:
+                    if step.start_time:
+                        # calculate elabsed time in seconds for each step
+                        #step.elapsed_time = datetime.fromisoformat(step.start_time) - datetime.fromisoformat(self.start_time_log)
+                        step.elapsed_time = time_to_seconds(step.start_time - self.start_time_log)
+                # Create a plotly figure
+                self.figures = []
+                # make a figure with multiple subplots stack on top of each other, they share the x-axis "elapsed time". I need subplots for all quantities in the process_log
+                #  
+                fig = make_subplots(
+                    rows=6, cols=1,
+                    shared_xaxes=True,
+                    vertical_spacing=0.02,
+                    subplot_titles=(
+                        "Voltage Set", "Power Actual", "Current Actual",
+                        "Voltage Actual", "Grid Current", "Frequency Actual"
+                    )
+                )
+                # add traces for each quantity
+                fig.add_trace(
+                    go.Scatter(
+                        x=self.process_log.elapsed_time,
+                        y=self.process_log.voltage_set,
+                        mode='lines',
+                        name='Voltage Set'
+                    ),
+                    row=1, col=1
+                )
+                fig.add_trace(
+                    go.Scatter(
+                        x=self.process_log.elapsed_time,
+                        y=self.process_log.power_actual,
+                        mode='lines',
+                        name='Power Actual'
+                    ),
+                    row=2, col=1
+                )
+                fig.add_trace(
+                    go.Scatter(
+                        x=self.process_log.elapsed_time,
+                        y=self.process_log.current_actual,
+                        mode='lines',
+                        name='Current Actual'
+                    ),
+                    row=3, col=1
+                )
+                fig.add_trace(
+                    go.Scatter(
+                        x=self.process_log.elapsed_time,
+                        y=self.process_log.voltage_actual,
+                        mode='lines',
+                        name='Voltage Actual'
+                    ),
+                    row=4, col=1
+                )
+                fig.add_trace(
+                    go.Scatter(
+                        x=self.process_log.elapsed_time,
+                        y=self.process_log.grid_current,
+                        mode='lines',
+                        name='Grid Current'
+                    ),
+                    row=5, col=1
+                )
+                fig.add_trace(
+                    go.Scatter(
+                        x=self.process_log.elapsed_time,
+                        y=self.process_log.frequency_actual,
+                        mode='lines',
+                        name='Frequency Actual'
+                    ),
+                    row=6, col=1
+                )
+                # add vertical lines for each step
+                for step in self.fiber_process_steps:
+                    if step.elapsed_time:
+                        fig.add_vline(
+                            x=step.elapsed_time,
+                            line_dash='dash',
+                            line_color='black'
+                        )
+                        fig.add_annotation(
+                            x=step.elapsed_time,
+                            y=0.5,
+                            text=step.name,
+                            showarrow=False
+                        )
+                fig.update_layout(
+                    title='Fiber Process Log',
+                    xaxis_title='Elapsed Time [s]',
+                    yaxis_title_text="Voltage Set",
+                    yaxis2_title_text="Power Actual",
+                    yaxis3_title_text="Current Actual",
+                    yaxis4_title_text="Voltage Actual",
+                    yaxis5_title_text="Grid Current",
+                    yaxis6_title_text="Frequency Actual"
+                )
+                # change size of the figure
+                fig.update_layout(height=2000, width=800)
+                fig.update_layout(
+                    template='plotly_white',
+                    hovermode='closest',
+                    dragmode='zoom',
+                    xaxis=dict(
+                        fixedrange=False,
+                        autorange=True,
+                        # rangeslider=dict(
+                        #     autorange=True,
+                        #     borderwidth=1,
+                        # ),
+                        # title='Process time / s',
+                        # mirror='all',
+                        showline=True,
+                        # gridcolor='#EAEDFC',
+                    ),
+                )
+                self.figures.append(
+                    PlotlyFigure(
+                        label='Fiber Process Log',
+                        figure=fig.to_plotly_json()
+                    )
+                )
+
+                #fig = go.Figure()
+
+                #fig.add_trace(go.Scatter(x=self.process_log.elapsed_time, y=self.process_log.voltage_set, mode='lines', name='Voltage Set'))
+                #fig.add_trace(go.Scatter(x=self.process_log.elapsed_time, y=self.process_log.voltage_actual, mode='lines', name='Voltage Actual'))
+                #fig.add_trace(go.Scatter(x=self.process_log.elapsed_time, y=self.process_log.power_actual, mode='lines', name='Power Actual'))
+                #fig.add_trace(go.Scatter(x=self.process_log.elapsed_time, y=self.process_log.current_actual, mode='lines', name='Current Actual'))
+                #fig.add_trace(go.Scatter(x=self.process_log.elapsed_time, y=self.process_log.grid_current, mode='lines', name='Grid Current'))
+                #fig.add_trace(go.Scatter(x=self.process_log.elapsed_time, y=self.process_log.frequency_setpoint, mode='lines', name='Frequency Setpoint'))
+                #fig.add_trace(go.Scatter(x=self.process_log.elapsed_time, y=self.process_log.frequency_actual, mode='lines', name='Frequency Actual'))
+                # add vertical lines for each step
+                # for step in self.fiber_process_steps:
+                #     if step.elapsed_time:
+                #         fig.add_vline(x=step.elapsed_time, line_dash='dash', line_color='black')
+                #         fig.add_annotation(x=step.elapsed_time, y=0.5, text=step.name, showarrow=False)
+
+                # fig.update_layout(title='Fiber Process Log', xaxis_title='Elapsed Time [s]', yaxis_title='Values')
+                # self.figures.append(PlotlyFigure(label='Fiber Process Log', figure=fig.to_plotly_json()))
     # preheating = SubSection(
     #     section_def=Preheating,
     # )
@@ -2520,8 +2905,28 @@ class FzGrowthProcess(Process, Schema): #EntryData, ArchiveSection):
         label='Fz Growth Process',
         a_eln=ELNAnnotation(
             hide=["fzmaterials", "steps", "instruments"],
+            properties=SectionProperties(
+                order=[
+                    'name',
+                    'datetime',
+                    'end_time',
+                    'fz_furnace',
+                    'lab_id',
+                    'objective',
+                    'resistivity_target',
+                    'diameter_target',
+                    'location',
+                    'description',
+                    'samples',
+                    'assembly_step',
+                    'feed_stock_preparation',
+                    'doping_setup',
+                    'vacuum_test',
+                    'gas_filling',
+                    'fiber_process',
+                ]
         )
-    )
+    ))
     instruments = SubSection(
         section_def=FzInstrumentReference,
         repeats=True,
@@ -2646,6 +3051,32 @@ class FzGrowthProcess(Process, Schema): #EntryData, ArchiveSection):
             self.gas_filling = GasFilling()
         if self.fiber_process is None:
             self.fiber_process = FiberProcess()
+
+        if self.fiber_process.create_crystal:
+            crystal_doping=None
+            if self.doping_setup.doping_substance == "PH3":
+                crystal_doping="n"
+            elif self.doping_setup.doping_substance == "B2H6":
+                crystal_doping="p"
+                
+            fz_fiber = FzCrystal(
+                name=self.lab_id + '_fiber',
+                process_date=self.fiber_process.start_time_log,
+                fz_furnace=self.fz_furnace,
+                orientation=self.feed_stock_preparation.seed_orientation,
+                doping_type=crystal_doping
+            )
+            fz_fiber_reference = CompositeSystemReference()
+            fz_fiber_reference.reference = create_archive(
+                archive=archive,
+                entity=fz_fiber,
+                file_name=self.lab_id + '_fiber' + 'archive.json',
+            )
+            
+            samples=[]
+            samples.append(fz_fiber_reference)
+            self.samples=samples
+
         #     self.feed_stock_preparation.feed_rod_reference = FeedRodReference()
         #     self.feed_stock_preparation.seed_rod_mounted = SeedMounted()
 

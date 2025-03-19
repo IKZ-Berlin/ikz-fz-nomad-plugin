@@ -23,3 +23,46 @@ def create_archive(entity, archive, file_name) -> str:
     return get_reference(
         archive.metadata.upload_id, get_entry_id_from_file_name(file_name, archive)
     )
+from datetime import timedelta
+
+def time_str_to_seconds(time_str):
+    """
+    Converts a string like "0 days 00:01:00" into total seconds.
+
+    Parameters:
+        time_str (str): Input string in format "X days HH:MM:SS"
+
+    Returns:
+        float: total seconds
+    """
+    days_part, time_part = time_str.strip().split(' days ')
+    hours, minutes, seconds = map(int, time_part.split(':'))
+    days = int(days_part)
+
+    td = timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
+
+    return td.total_seconds()
+
+from datetime import timedelta
+import pandas as pd
+
+def time_to_seconds(time_input):
+    """
+    Converts a time string ("0 days 00:01:00") or Timedelta object into total seconds.
+
+    Parameters:
+        time_input (str, timedelta, pd.Timedelta): Time input.
+
+    Returns:
+        float: total seconds
+    """
+    if isinstance(time_input, (timedelta, pd.Timedelta)):
+        return time_input.total_seconds()
+
+    days_part, time_part = time_input.strip().split(' days ')
+    hours, minutes, seconds = map(int, time_part.split(':'))
+    days = int(days_part)
+
+    td = timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
+
+    return td.total_seconds()
